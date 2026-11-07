@@ -1,11 +1,11 @@
 # STATUS — controle de progresso do projeto
 
 **Data de criação:** 2026-11-06.
-**Situação:** Fase 0 implementada e homologada localmente em 2026-11-07, em modo nativo e com o Compose original: PHP 8.3/8.5, MySQL 8.4, Redis 7 e Mailpit reais. Resultado no Compose: 23 testes API em cada runtime (sem skipped), 8 SPA e 10 E2E com MySQL; 35 verificações com exit 0. Publicação autorizada concluída em `contatonomaci-pixel/fabric`, commit inicial `07e6d36decf81b0cd4e108167693cff35bf6bbd1`. Primeira CI revelou ausência da pasta vazia `tests/Unit` no Git; correção de empacotamento em validação. Windows nativo e Safari/iOS real não executados. Fases seguintes não autorizadas.
+**Situação:** Fase 0 implementada, publicada com autorização em `contatonomaci-pixel/fabric` e homologada localmente e na CI em 2026-11-07. [CI aprovada no commit `10c54a5`](https://github.com/contatonomaci-pixel/fabric/actions/runs/42339096676): quatro jobs com sucesso, 23 testes API/111 assertions em cada PHP (8.3/8.5), 8 SPA e 10 E2E. Homologação local do Compose original também passou nas 35 verificações, com MySQL 8.4, Redis 7 e Mailpit reais. Corrigida a ausência de `tests/Unit` em clones por `.gitkeep`. Windows nativo e Safari/iOS real não executados; 15 avisos moderados de ferramentas de desenvolvimento continuam registrados. Fase 1 e seguintes não autorizadas.
 
 | Fase | Status | Observação |
 |---|---|---|
-| 0 — Fundação técnica | HOMOLOGADA LOCALMENTE; CI EM VALIDAÇÃO | Código publicado com autorização; correção de diretório vazio após a primeira execução remota |
+| 0 — Fundação técnica | HOMOLOGADA LOCALMENTE E NA CI | Código publicado; quatro jobs aprovados após corrigir a preservação de tests/Unit em clones |
 | 1 — Catálogo/identificadores | PENDENTE | Depois da Fase 0 |
 | 2 — Compras/estoque | PENDENTE | |
 | 3 — Fabricação/OP | PENDENTE | |
@@ -293,3 +293,22 @@ E2E em `http://localhost:5173`, desktop 1487×1058 e mobile 390×844; usado Play
 - Causa confirmada no log: `Test directory ".../apps/api/tests/Unit" not found`. O `phpunit.xml` do scaffold referencia a pasta, existente mas vazia na máquina de desenvolvimento; Git não versiona diretórios vazios. As migrations up/down/up e demais passos anteriores ao teste passaram no job PHP 8.5.
 - Correção mínima: adicionado `apps/api/tests/Unit/.gitkeep`, preservando a pasta em clones sem criar teste fictício ou alterar a configuração da suíte. README e documentos 16/17/18/STATUS atualizados com a publicação e as evidências. Nova execução remota será acompanhada antes de afirmar aprovação da CI.
 - Validação local após a correção: `composer test` executado com PHP 8.3.33, **20 passaram / 94 assertions; 3 skipped** esperados no perfil SQLite; `python3 scripts/validar-pacote.py` passou, blocos Markdown e `git diff --cached --check` válidos. O arquivo `.gitkeep` está na seleção do commit; Compose preservado.
+
+**CI remota aprovada após a correção**
+- Correção publicada no commit [`10c54a53e678c0e9c05621e25fe42d208e13e784`](https://github.com/contatonomaci-pixel/fabric/commit/10c54a53e678c0e9c05621e25fe42d208e13e784), sem force e sem alteração de regras da aplicação ou workflow.
+- [Run 42339096676](https://github.com/contatonomaci-pixel/fabric/actions/runs/42339096676): `status=completed`, `conclusion=success`. Estados finais dos quatro jobs conferidos pela API; contagens abaixo extraídas dos logs autenticados, sem imprimir credenciais.
+
+| Job remoto | Resultado confirmado |
+|---|---|
+| `api (8.3)` | **Sucesso: 23 testes / 111 assertions**, sem skipped; MySQL 8.4/Redis 7, migrations up/down/up, Composer validate e Pint |
+| `api (8.5)` | **Sucesso: 23 testes / 111 assertions**, sem skipped; mesma matriz de infraestrutura e qualidade |
+| `web` | **Sucesso:** npm ci, lint, typecheck, **8 testes / 3 arquivos** e build |
+| `e2e` | **Sucesso: 10 testes**, 8,5 s; Chromium desktop/mobile, PHP 8.3 e SQLite descartável, conforme perfil padrão do workflow |
+
+A CI remota complementa a homologação local com Compose/Mailpit. SMTP/reset e E2E local em MySQL/Redis continuam comprovados nas evidências anteriores; o E2E remoto padrão usa SQLite. Nenhum deploy foi realizado.
+
+**Fechamento da publicação**
+- Atualizados README e documentos 16/17/18/STATUS com o resultado aprovado. A atualização final é exclusivamente documental e será publicada com `[skip ci]`, evitando repetir a matriz já aprovada; o commit de aplicação validado permanece `10c54a53e678c0e9c05621e25fe42d208e13e784`.
+- Arquivos alterados nesta sessão: `apps/api/tests/Unit/.gitkeep`, `README.md`, `docs/STATUS.md`, `docs/16-fundacao-decisoes.md`, `docs/17-executar-localmente.md`, `docs/18-arquivos-fase-0.md`. Compose original preservado; o pacote aprovado inicial permanece como evidência histórica, anterior à correção do diretório vazio.
+- Pendências e riscos mantidos: Windows nativo/Safari/iOS real não executados; avisos moderados de desenvolvimento ainda sem atualização compatível aplicada; ADR-007/marca para revisão antes da expansão. Não há pendência de acesso/publicação/execução da CI nesta sessão.
+- Próxima fase funcional recomendada: **Fase 1**, somente após liberação explícita do usuário. A autorização recebida nesta sessão cobriu a publicação e validação da Fase 0; não autorizou iniciar catálogo, produção, financeiro, GTIN/RCN ou BI.

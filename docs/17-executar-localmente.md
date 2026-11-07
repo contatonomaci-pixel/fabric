@@ -196,7 +196,7 @@ A homologação desta máquina usou Colima com socket `unix:///Users/mauriciosil
 
 Em 2026-11-07, foram executados Docker 29.7.2/Compose 5.5.0, MySQL 8.4.13, Redis 7.4.12 e Mailpit 1.33.0: **35 verificações passaram**, incluindo 23 API/111 assertions em cada runtime PHP, 8 SPA e 10 E2E. Tags móveis podem resolver versões diferentes no futuro; o roteiro registra as versões/IDs realmente utilizados. O guia normal do Windows permanece nas seções 1–6; este roteiro de automação usa caminhos e comandos do macOS.
 
-CI remota: após autorização explícita, o pacote da Fase 0 foi publicado em `https://github.com/contatonomaci-pixel/fabric.git`, branch `main`, commit `07e6d36decf81b0cd4e108167693cff35bf6bbd1`. A [primeira execução remota](https://github.com/contatonomaci-pixel/fabric/actions/runs/42338793688) foi iniciada automaticamente por push. Veja no STATUS os resultados observados, separados da homologação local com Mailpit/Compose.
+CI remota: após autorização explícita, o pacote da Fase 0 foi publicado em `https://github.com/contatonomaci-pixel/fabric.git`, branch `main`. A primeira execução identificou que `tests/Unit` estava vazia e não entrou no Git; `.gitkeep` preserva agora essa pasta em clones. A [execução do commit corrigido `10c54a5`](https://github.com/contatonomaci-pixel/fabric/actions/runs/42339096676) passou nos quatro jobs: API PHP 8.3/8.5 com MySQL/Redis (23 testes em cada), web (8 testes) e E2E (10 testes em SQLite descartável). Veja no STATUS a distinção entre CI e homologação local com Mailpit/Compose.
 
 ## Limites desta entrega
 
