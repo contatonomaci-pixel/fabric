@@ -9,6 +9,8 @@ class Company extends Model
 {
     use HasUlids;
 
+    protected $attributes = ['active' => true, 'is_demo' => false];
+
     protected $fillable = ['legal_name', 'trade_name', 'timezone', 'active', 'is_demo'];
 
     protected $hidden = ['id'];

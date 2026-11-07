@@ -28,6 +28,8 @@ export const router = createRouter({
           component: () => import("./views/CompaniesView.vue"),
           meta: { title: "Empresas e unidades" },
         },
+        { path: "estrutura", component: () => import("./views/StructureView.vue"), meta: { title: "Fábricas e depósitos" } },
+        { path: "catalogo", component: () => import("./views/CatalogView.vue"), meta: { title: "Catálogo e identificadores" } },
       ],
     },
     {

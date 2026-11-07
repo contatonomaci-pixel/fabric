@@ -5,7 +5,7 @@ import FactoryIcon from "../components/FactoryIcon.vue";
 <template>
   <section>
     <h1>Seu espaço de trabalho</h1>
-    <p class="intro">A base está pronta para os próximos passos.</p>
+    <p class="intro">Organize a estrutura e o catálogo da sua empresa.</p>
     <div class="empty-state">
       <FactoryIcon :size="78" aria-hidden="true" />
       <h2>A operação começa por aqui</h2>
@@ -14,6 +14,7 @@ import FactoryIcon from "../components/FactoryIcon.vue";
         existem dados de produção, estoque ou vendas.
       </p>
       <RouterLink to="/empresas">Consultar empresas e unidades</RouterLink>
+      <RouterLink to="/catalogo">Abrir catálogo e identificadores</RouterLink>
     </div>
     <section class="phase-section" aria-labelledby="phase-heading">
       <h2 id="phase-heading">Nesta fase</h2>
@@ -27,8 +28,8 @@ import FactoryIcon from "../components/FactoryIcon.vue";
           <dd>Consulte os vínculos do seu usuário</dd>
         </div>
         <div>
-          <dt>Próxima etapa</dt>
-          <dd>Catálogo e identificadores, após liberação</dd>
+          <dt>Catálogo disponível</dt>
+          <dd>Produtos, variantes, SKUs e códigos internos</dd>
         </div>
       </dl>
     </section>

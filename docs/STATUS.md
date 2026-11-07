@@ -1,12 +1,12 @@
 # STATUS — controle de progresso do projeto
 
 **Data de criação:** 2026-11-06.
-**Situação:** Fase 0 implementada, publicada com autorização em `contatonomaci-pixel/fabric` e homologada localmente e na CI em 2026-11-07. [CI aprovada no commit `10c54a5`](https://github.com/contatonomaci-pixel/fabric/actions/runs/42339096676): quatro jobs com sucesso, 23 testes API/111 assertions em cada PHP (8.3/8.5), 8 SPA e 10 E2E. Homologação local do Compose original também passou nas 35 verificações, com MySQL 8.4, Redis 7 e Mailpit reais. Corrigida a ausência de `tests/Unit` em clones por `.gitkeep`. Windows nativo e Safari/iOS real não executados; 15 avisos moderados de ferramentas de desenvolvimento continuam registrados. Fase 1 e seguintes não autorizadas.
+**Situação:** Fase 1 autorizada e implementada em 2026-11-07, homologada localmente em PHP 8.3/8.5, MySQL 8.4, Redis 7 e Mailpit: 39 testes API em cada runtime, 12 SPA e 14 E2E. Inclui empresas/fábricas/depósitos, catálogo, unidades, SKUs, preços com histórico e Code128 SVG/PNG/PDF. CI específica da fase ainda pendente de publicação da branch de revisão. Fases 2–10 não autorizadas. Windows nativo/Safari/iOS real, homologação física de leitura/impressão e avisos moderados de ferramentas de desenvolvimento permanecem com os limites registrados no histórico.
 
 | Fase | Status | Observação |
 |---|---|---|
 | 0 — Fundação técnica | HOMOLOGADA LOCALMENTE E NA CI | Código publicado; quatro jobs aprovados após corrigir a preservação de tests/Unit em clones |
-| 1 — Catálogo/identificadores | PENDENTE | Depois da Fase 0 |
+| 1 — Catálogo/identificadores | IMPLEMENTADA; HOMOLOGADA LOCALMENTE | Empresas/estrutura, catálogo, UoM, SKUs/preços e Code128; revisão/CI da branch pendentes |
 | 2 — Compras/estoque | PENDENTE | |
 | 3 — Fabricação/OP | PENDENTE | |
 | 4 — Qualidade/rastreabilidade | PENDENTE | |
@@ -312,3 +312,59 @@ A CI remota complementa a homologação local com Compose/Mailpit. SMTP/reset e 
 - Arquivos alterados nesta sessão: `apps/api/tests/Unit/.gitkeep`, `README.md`, `docs/STATUS.md`, `docs/16-fundacao-decisoes.md`, `docs/17-executar-localmente.md`, `docs/18-arquivos-fase-0.md`. Compose original preservado; o pacote aprovado inicial permanece como evidência histórica, anterior à correção do diretório vazio.
 - Pendências e riscos mantidos: Windows nativo/Safari/iOS real não executados; avisos moderados de desenvolvimento ainda sem atualização compatível aplicada; ADR-007/marca para revisão antes da expansão. Não há pendência de acesso/publicação/execução da CI nesta sessão.
 - Próxima fase funcional recomendada: **Fase 1**, somente após liberação explícita do usuário. A autorização recebida nesta sessão cobriu a publicação e validação da Fase 0; não autorizou iniciar catálogo, produção, financeiro, GTIN/RCN ou BI.
+
+### 2026-11-07 — Fase 1 autorizada: estrutura, catálogo e Code128 interno
+
+**Autorização, objetivo e plano**
+- Usuário respondeu **“autorizado”** à pergunta sobre iniciar a Fase 1. Documentos obrigatórios, tarefa `tasks/01-catalogo-codigos.md` e especificações de produtos/unidades, códigos, API e permissões lidos antes de implementar. Mantido o escopo das fases 0–1.
+- Plano executado: migration/serviços transacionais e permissões por empresa; formulários de estrutura/catálogo na SPA existente; exemplos fictícios; arquivos Code128; testes de isolamento, concorrência, qualidade e documentação. Riscos priorizados: vínculos entre empresas, reutilização de códigos, peso nominal confundido com estoque, preço sem histórico e resultados atrasados da empresa anterior.
+- `git status --short` na pasta principal continua sem `.git`. Usado checkout isolado, branch `feat/phase-1-catalog` a partir do commit de documentação `59d0b0b`, preservando os arquivos de trabalho da IDE. Status/diff também conferidos com `GIT_DIR` isolado e `GIT_WORK_TREE` apontando para esta pasta, sem criar `.git` nela.
+
+**Implementado**
+- Empresas próprias: criação, edição, desativação e reativação com Policy; criação associa proprietário e unidades padrão na mesma transação. Fábricas/depósitos com escopo de empresa e tipo configurável, sem controles sanitários/estoque fictícios.
+- Famílias com proteção contra ciclos, produtos por tipo, variantes com sabor/peso nominal/características, unidades por dimensão e SKUs por apresentação. UI com seletores pesquisáveis, filtros família/variante/tipo/estado, paginação, loading/vazio/erro/sucesso, formulários e confirmação de desativação.
+- PK BIGINT/ULID público mantidos. Foreign keys compostas incluem empresa; testes rejeitam vínculo cruzado também diretamente no banco. Quantidades/pesos DECIMAL(18,6), preço unitário opcional DECIMAL(18,4), payloads decimais como texto, sem preço automático por peso nominal.
+- Conteúdo de PCT/CX por SKU, sem fator global de embalagem. g/KG exigem peso variável; pesagem real e baixa de estoque ficam para fases operacionais. Identidade/apresentação de SKU, código/dimensão/fator de unidade e características de variante já usada não podem ser reescritos silenciosamente.
+- Reserva de SKU e Code128 dentro de transação, contador técnico global com lock, namespaces/escopos não nulos e índices únicos; códigos ativos/inativos não são reutilizados. Reserva repetida por SKU retorna o mesmo código. Busca de SKUs aceita também o valor do Code128; validação retorna o SKU público associado e disponibilidade efetiva, sem declarar GTIN/PDV aprovado.
+- Histórico append-only com autor, data, antes/depois e mudanças de preço. Desativar pai torna filhos indisponíveis sem apagar seu histórico. Gravações relêem/bloqueiam a empresa e revalidam sua autorização dentro da transação.
+- SVG/PNG reais com checksum Code128 e quiet zones de 10 módulos; PDF interno de teste, sem conteúdo legal fictício. Nomes extensos abreviados somente na legenda; SKU integral com fonte ajustada. Recursos remotos/PHP/JavaScript desabilitados no Dompdf; textos escapados. RCN/EAN/GTIN rejeitados na reserva desta fase.
+- Demonstração idempotente: Coxinha Frango 25g UN/PCT20/KG, Coxinha Carne 25g, Bolinho Carne 50g e Pizza Frango/Carne 400g; fábrica/depósito fictícios; preços não definidos. Contas extras de catálogo só no runner E2E, com banco/senha efêmeros e proteção contra uso fora dele.
+- Permissões: proprietário gerencia sua empresa/estrutura/catálogo; auditor consulta; operador sem nova concessão administrativa. Mantidos Sanctum/CSRF e limites de login/recuperação. Orçamentos da área autenticada separados por usuário: leituras 600/min e gravações 60/min, configuráveis e com teste de isolamento/429.
+- Instalados e fixados no lock: Picqer **3.3.0**, Dompdf **3.1.6** e quatro dependências, sem atualizar pacotes preexistentes. GD/BCMath explícitos; Composer não reportou advisories na instalação. Nenhuma dependência nova no frontend.
+
+**Problemas reproduzidos e corrigidos durante a implementação**
+- Um objeto de empresa carregado antes de sua desativação permitia passar pela autorização inicial do serviço. Teste específico **falhou antes** e passou após rechecagem dentro da transação com lock da empresa. Não foi relaxada a autorização.
+- A suíte E2E ampliada atingiu as cotas compartilhadas de leituras/login. Confirmados 429 nos estados de erro; separados os orçamentos de leitura/gravação e isoladas contas fictícias de catálogo por projeto, mantendo o limite original de login. Teste confirma que leituras não consomem gravações e que ambos continuam limitados.
+- Cenário inicial de navegação completa após login apresentou cookie ausente. O helper E2E passou a aguardar explicitamente POST 200 e presença de cookie HttpOnly antes da navegação; não foi alterado o contrato de autenticação para esse ajuste de sincronização.
+- PDF com nome de 150 caracteres/SKU de 40 caracteres ocupava duas páginas e depois apresentou sobreposição no teste visual. Ajustados legenda, dimensões e fonte do SKU; arquivo final em uma página, sem sobreposição, decodificado por leitor independente e coberto pelo teste de exportação.
+
+**Verificações locais efetivamente executadas**
+
+| Verificação | Resultado |
+|---|---|
+| Migration da fase up/down/up em MySQL 8.4.13 | Passou em PHP 8.3.33 e 8.5.5 |
+| Matriz MySQL/Redis com leitura independente de PNG | **39 testes / 283 assertions passaram em cada runtime**, sem skipped, na evidência `/private/tmp/factorycontrol-phase1-verified.json` |
+| Dois processos/atores simultâneos, MySQL real | Autogeração retornou dois identificadores distintos; tentativa manual duplicada teve exatamente um vencedor; reservas preservadas |
+| Schema MySQL | Dez tabelas novas conferidas InnoDB/utf8mb4; preço/quantidades/pesos conferidos como DECIMAL com precisão/escala previstas |
+| Ajustes finais de exportação/consulta por Code128 | Suíte SQLite posterior com leitor: **34 passaram / 226 assertions; 5 skipped** esperados de infraestrutura/concorrência; exportação focada passou com 18 assertions |
+| SMTP, sessão, worker e readiness | Smoke real herdado da fundação passou; Redis desligado retornou 503; Mailpit recebeu somente mensagem fictícia |
+| Web lint, typecheck e build | Passaram sem erro/aviso de lint |
+| Vitest | **12 testes / 5 arquivos passaram**, incluindo preço textual, identidade preservada e descarte de resposta da empresa anterior |
+| E2E em PHP 8.3 + MySQL/Redis reais | **14 passaram**, desktop 1487×1058 e mobile Chromium 390×844; 29,7 s na matriz registrada |
+| E2E padrão SQLite | **14 passaram**, 13,3 s na execução registrada após separar contas/limites |
+| Pint, Composer validate e requisitos de plataforma | Passaram; GD/BCMath e extensões/runtime PHP 8.3 disponíveis |
+| OpenAPI Redocly CLI 2.76.0 `--extends minimal` | Válido, zero erros; dois avisos de localhost intencionais. 43 operações documentadas, incluindo CSRF; 42 rotas API v1 conferidas integralmente contra `route:list --json` |
+| Pacote documental | `python3 scripts/validar-pacote.py`: passou, agora 11 documentos essenciais |
+
+A matriz detalhada contém **35 verificações com exit 0**, `success=true`, `temporary_services_stopped=true`. A contagem de assertions da matriz precede as últimas verificações de PDF/consulta por código; os testes posteriores estão discriminados acima e a CI da branch validará o snapshot publicado. Evidências temporárias não contêm credenciais reais nem são banco de operação.
+
+**QA visual e artefatos de teste**
+- Skill frontend-testing-debugging aplicada ao fluxo login → empresa → estrutura/catálogo → cadastro → preço/histórico → desativação/duplicidade, com troca de empresa e filtros. Controle do Browser integrado sem ferramenta de execução disponível; utilizado Playwright existente, permitido pelo fluxo de testes já adotado.
+- Screenshots desktop/mobile e de SKU em `/private/var/folders/9v/c9y9j1gx7_b9h0y3jvhfww_80000gn/T/factorycontrol-qa/`: `catalog-desktop.png`, `catalog-mobile.png`, `sku-desktop.png`, `sku-mobile.png`. Inspecionados com `view_image`; ajustado botão de cadastro herdado do login que ocupava toda a largura. Conteúdo legível, estados claros e sem overflow horizontal nas interações; overlays/erros do fluxo principal cobertos pelo E2E. 401/419/422 intencionais não são falhas da aplicação.
+- Skill PDF aplicada: Poppler ausente, renderização por PDFium **5.15.0** isolado em venv temporário; PNG e PDF renderizado decodificados com ZXing-C++ **2.3.0**/Pillow **11.3.0**. Normal e caso máximo em uma página, imagens finais abertas com `view_image`. Arquivos: `/private/tmp/factorycontrol-phase1-barcode.svg/.png/.pdf`, `factorycontrol-phase1-label-long.pdf`, `factorycontrol-phase1-label-normal.png` e `factorycontrol-phase1-label-long.png`.
+
+**Arquivos e limites**
+- Relação completa em [Arquivos da Fase 1](20-arquivos-fase-1.md); uso, contratos e decisões em [Catálogo da Fase 1](19-catalogo-fase-1.md). README e guia Windows/Unix atualizados.
+- Compose preservado: SHA-256 `51696b75bdf9bbe66af4e54e62acf8b4df50936fcbe5e8d867bd35bcf53dd50f`. Projeto/volumes descartáveis removidos após cada matriz; nenhuma conexão ao banco MySQL 9.6 preexistente ou infraestrutura remota foi usada para os testes.
+- Windows nativo, Safari/iOS real, scanner/impressora físicos e parâmetros técnicos/fiscais continuam fora da homologação desta sessão. Os avisos transitivos de desenvolvimento anteriores não foram reauditados/forçados nesta fase. Leitura por software não equivale a homologação de PDV.
+- Preparar branch de revisão e CI da Fase 1; sem deploy ou implementação de fases futuras. Próxima fase funcional recomendada: **Fase 2**, somente após revisão da Fase 1 e liberação explícita.

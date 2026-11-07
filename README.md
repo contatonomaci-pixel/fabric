@@ -1,11 +1,11 @@
 # FactoryControl PRO — Projeto mestre para desenvolvimento com Codex
 
-**Status:** Fase 0 implementada e publicada em [contatonomaci-pixel/fabric](https://github.com/contatonomaci-pixel/fabric), com [CI remota aprovada](https://github.com/contatonomaci-pixel/fabric/actions/runs/42339096676): API PHP 8.3/8.5, frontend e E2E. Homologações nativa e Docker/Compose também aprovadas com MySQL 8.4, Redis 7 e Mailpit reais. **Módulos de ERP ainda não implementados; Fase 1 depende de liberação.**
+**Status:** Fase 1 implementada e homologada localmente: empresas/fábricas/depósitos, catálogo, unidades, SKUs, preços auditados e Code128 interno. Matriz MySQL 8.4/Redis 7 em PHP 8.3/8.5, SPA e E2E aprovados. A [CI da fundação](https://github.com/contatonomaci-pixel/fabric/actions/runs/42339096676) permanece como evidência histórica; resultados específicos desta fase em [STATUS](docs/STATUS.md). **Estoque, produção, financeiro, RCN/GTIN e BI ainda não implementados.**
 **Revisão:** 2026-11-07. **Idioma do produto:** pt-BR; moeda BRL; datas ISO no armazenamento e pt-BR na UI.
 
 ## Executar a fundação
 
-Consulte [instalação Windows/VS Code e Unix, login fictício e testes](docs/17-executar-localmente.md), [contrato OpenAPI](docs/api/openapi.json) e [evidências/pendências](docs/STATUS.md). O Compose fornecido permanece em `infra/compose.yaml`.
+Consulte [instalação Windows/VS Code e Unix, login fictício e testes](docs/17-executar-localmente.md), [uso e decisões do catálogo da Fase 1](docs/19-catalogo-fase-1.md), [contrato OpenAPI](docs/api/openapi.json) e [evidências/pendências](docs/STATUS.md). O Compose fornecido permanece em `infra/compose.yaml`.
 
 ## Visão do produto
 ERP industrial expansível para alimentos, começando com salgados congelados prontos para **aquecer e consumir**, produzidos inicialmente em modeladora Consultomaq Maqturbo 8.5 MAX. Suporta futuramente pizzas, massas, marmitas, panificação, sobremesas, outras máquinas, depósitos e fábricas. Gestão integrada de produtos, produção, qualidade, rastreabilidade, estoque, compras, vendas, expedição, funcionários, finanças, metas e BI.

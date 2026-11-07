@@ -27,6 +27,7 @@ export default defineConfig({
   webServer: [
     {
       command: "node scripts/e2e-api.mjs",
+      stderr: "ignore", // Evita logs de conexão do PHP ocultarem os resultados dos testes.
       url: "http://127.0.0.1:8000/up",
       reuseExistingServer: false,
       timeout: 60000,

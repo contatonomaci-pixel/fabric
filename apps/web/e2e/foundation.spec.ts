@@ -49,7 +49,7 @@ test("login por cookie, consulta de vínculos, navegação e logout", async ({
   await expect(
     page.getByText("Fábrica Demonstração — FICTÍCIA", { exact: true }),
   ).toBeVisible();
-  await expect(page.getByText("Unidades na próxima etapa")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Gerenciar fábricas e depósitos" })).toBeVisible();
   await page.getByRole("button", { name: "Sair", exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "Acesse seu espaço de trabalho" }),
