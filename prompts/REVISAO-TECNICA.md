@@ -1,0 +1,3 @@
+# Prompt de revisão após cada fase
+
+Revise as alterações da fase recém-implementada como revisor sênior de Laravel 13/Vue 3/MySQL 8.4 e ERP industrial. Procure erros de autorização por empresa, SQL de concorrência e índice UNIQUE com NULL, precisão decimal UN/KG, movimentações não idempotentes, violação de rastreabilidade/FEFO/qualidade, confusão GTIN x código restrito, vazamento de dados financeiros e cálculos errados de metas/PE. Execute os testes existentes e acrescente testes de regressão quando necessário. Reporte problemas por severidade com caminhos de arquivos e somente corrija o que pertencer à fase atual. Atualize `docs/STATUS.md`.

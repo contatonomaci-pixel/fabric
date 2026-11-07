@@ -1,0 +1,99 @@
+name: Fundação técnica
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['8.3', '8.5']
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: factorycontrol_pro_test
+          MYSQL_ROOT_PASSWORD: fictitious_ci_only
+        ports: ['3306:3306']
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -pfictitious_ci_only"
+          --health-interval=10s --health-timeout=5s --health-retries=12
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: --health-cmd="redis-cli ping" --health-interval=5s --health-retries=10
+    defaults:
+      run:
+        working-directory: apps/api
+    env:
+      APP_ENV: testing
+      DB_CONNECTION: mysql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+      DB_DATABASE: factorycontrol_pro_test
+      DB_USERNAME: root
+      DB_PASSWORD: fictitious_ci_only
+      REDIS_CLIENT: predis
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
+      CACHE_STORE: array
+      CACHE_LIMITER: array
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: sync
+      TEST_DB_CONNECTION: mysql
+      TEST_DB_DATABASE: factorycontrol_pro_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, intl, pdo_mysql, pdo_sqlite, bcmath
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist
+      - run: php -r "copy('.env.example', '.env');"
+      - run: php artisan key:generate
+      - run: composer validate --strict
+      - run: vendor/bin/pint --test
+      - run: php artisan migrate --force
+      - run: php artisan migrate:rollback --force
+      - run: php artisan migrate --force
+      - run: composer test
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, pdo_sqlite, bcmath
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: composer install --no-interaction --prefer-dist
+        working-directory: apps/api
+      - run: php -r "copy('.env.example', '.env');"
+        working-directory: apps/api
+      - run: npm ci
+        working-directory: apps/web
+      - run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+      - run: npm run test:e2e
+        working-directory: apps/web

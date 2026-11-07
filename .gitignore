@@ -1,0 +1,32 @@
+# Sistemas/editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*.log
+# Credenciais e arquivos locais
+.env
+.env.*
+!.env.example
+infra/.env
+apps/**/.env
+apps/**/.env.*
+!apps/**/.env.example
+# Laravel
+apps/api/vendor/
+apps/api/storage/logs/*
+apps/api/bootstrap/cache/*.php
+apps/api/public/storage
+# Node
+node_modules/
+apps/web/dist/
+apps/web/coverage/
+# Temporários
+*.log
+*.tmp
+__pycache__/
+
+# Verificações e cache local
+apps/api/.phpunit.result.cache
+apps/web/playwright-report/
+apps/web/test-results/
+apps/web/*.tsbuildinfo
