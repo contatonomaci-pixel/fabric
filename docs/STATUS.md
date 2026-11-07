@@ -1,11 +1,11 @@
 # STATUS — controle de progresso do projeto
 
 **Data de criação:** 2026-11-06.
-**Situação:** Fase 0 implementada e homologada localmente em 2026-11-07, em modo nativo e com o Compose original: PHP 8.3/8.5, MySQL 8.4, Redis 7 e Mailpit reais. Resultado no Compose: 23 testes API em cada runtime (sem skipped), 8 SPA e 10 E2E com MySQL; 35 verificações com exit 0. Repositório `contatonomaci-pixel/fabric` agora público e acessível, porém vazio e sem workflows/execuções. CI remota depende de publicação autorizada do código. Windows nativo e Safari/iOS real não executados. Fases seguintes não autorizadas.
+**Situação:** Fase 0 implementada e homologada localmente em 2026-11-07, em modo nativo e com o Compose original: PHP 8.3/8.5, MySQL 8.4, Redis 7 e Mailpit reais. Resultado no Compose: 23 testes API em cada runtime (sem skipped), 8 SPA e 10 E2E com MySQL; 35 verificações com exit 0. Publicação autorizada concluída em `contatonomaci-pixel/fabric`, commit inicial `07e6d36decf81b0cd4e108167693cff35bf6bbd1`. Primeira CI revelou ausência da pasta vazia `tests/Unit` no Git; correção de empacotamento em validação. Windows nativo e Safari/iOS real não executados. Fases seguintes não autorizadas.
 
 | Fase | Status | Observação |
 |---|---|---|
-| 0 — Fundação técnica | HOMOLOGADA LOCALMENTE | PHP 8.3/8.5 + Compose original/MySQL 8.4/Redis 7/Mailpit/worker/E2E passaram; CI remota aguarda publicação autorizada |
+| 0 — Fundação técnica | HOMOLOGADA LOCALMENTE; CI EM VALIDAÇÃO | Código publicado com autorização; correção de diretório vazio após a primeira execução remota |
 | 1 — Catálogo/identificadores | PENDENTE | Depois da Fase 0 |
 | 2 — Compras/estoque | PENDENTE | |
 | 3 — Fabricação/OP | PENDENTE | |
@@ -278,3 +278,18 @@ E2E em `http://localhost:5173`, desktop 1487×1058 e mobile 390×844; usado Play
 - Verificados symlinks e padrões de chaves privadas/tokens conhecidos; nenhuma ocorrência identificada. Essa checagem objetiva não equivale a uma auditoria de segurança completa.
 - Inclui código da Fase 0, locks, `.github/workflows/quality.yml` e documentação/planejamento já existente. O pacote e seu manifesto ficam fora do projeto; nenhum conteúdo foi enviado ao GitHub e a pasta principal permanece sem `.git`.
 - **Próximo passo dependente do usuário:** autorizar a publicação desse conteúdo no repositório público e disponibilizar acesso de escrita. Depois, acompanhar a execução remota da CI. Fase 1 continua não autorizada e não iniciada; permanece como próxima fase funcional recomendada após essa revisão.
+
+### 2026-11-07 — publicação autorizada e correção revelada pela CI
+
+**Autorização e escopo:** usuário respondeu “sim” à publicação do pacote aprovado de 154 arquivos em `contatonomaci-pixel/fabric`. Conferidos o SHA-256 do ZIP (`aa60090e835cea523c3e9ff71d155a5740301f43b2ded13ef86a2ffc917a47cc`) e todos os hashes do manifesto; nenhum arquivo local divergia do pacote. Plano: publicar por checkout isolado, conferir a árvore remota, acompanhar a CI e corrigir apenas problemas da Fase 0. Risco de publicação pública explicitado e autorizado; sem deploy ou alteração de serviços remotos.
+
+**Publicação realizada**
+- Checkout Git separado: `/private/tmp/factorycontrol-phase0-publish-8ytej_lm`; pasta principal preservada sem `.git`. Autenticação Git existente no macOS usada sem exibir, gravar ou versionar credenciais. Autor técnico: `Codex <codex@example.invalid>`, domínio reservado para identificar a automação sem inventar identidade do usuário.
+- Primeiro commit: [`07e6d36decf81b0cd4e108167693cff35bf6bbd1`](https://github.com/contatonomaci-pixel/fabric/commit/07e6d36decf81b0cd4e108167693cff35bf6bbd1), branch `main`, push sem force. API confirmou **154 blobs idênticos** ao pacote aprovado. `.env` locais, bancos, logs, dependências instaladas e builds não enviados.
+- O conector GitHub continuou indisponível. Descoberta uma opção de integração via skill plugin-management, mas a publicação não dependeu de nova conexão porque o transporte Git já estava autenticado. Leitura de logs autenticada pelo mesmo mecanismo; credencial somente em memória e cabeçalho removido antes de redirecionar para outro host.
+
+**Primeira execução remota e correção**
+- [Run 42338793688](https://github.com/contatonomaci-pixel/fabric/actions/runs/42338793688), evento `push`: jobs **web** e **e2e** concluídos com sucesso; **api (8.5)** falhou em `composer test`; **api (8.3)** cancelado pela matriz após a falha do outro runtime.
+- Causa confirmada no log: `Test directory ".../apps/api/tests/Unit" not found`. O `phpunit.xml` do scaffold referencia a pasta, existente mas vazia na máquina de desenvolvimento; Git não versiona diretórios vazios. As migrations up/down/up e demais passos anteriores ao teste passaram no job PHP 8.5.
+- Correção mínima: adicionado `apps/api/tests/Unit/.gitkeep`, preservando a pasta em clones sem criar teste fictício ou alterar a configuração da suíte. README e documentos 16/17/18/STATUS atualizados com a publicação e as evidências. Nova execução remota será acompanhada antes de afirmar aprovação da CI.
+- Validação local após a correção: `composer test` executado com PHP 8.3.33, **20 passaram / 94 assertions; 3 skipped** esperados no perfil SQLite; `python3 scripts/validar-pacote.py` passou, blocos Markdown e `git diff --cached --check` válidos. O arquivo `.gitkeep` está na seleção do commit; Compose preservado.

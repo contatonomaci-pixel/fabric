@@ -79,6 +79,7 @@ Sem `.git` na pasta recebida, esta relação descreve os arquivos criados/adapta
 - `apps/api/tests/Feature/FoundationTest.php`
 - `apps/api/tests/Feature/InfrastructureTest.php`
 - `apps/api/tests/TestCase.php`
+- `apps/api/tests/Unit/.gitkeep`
 - `apps/web/.env.example`
 - `apps/web/.gitignore`
 - `apps/web/.vscode/extensions.json`

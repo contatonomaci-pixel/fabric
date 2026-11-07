@@ -8,7 +8,7 @@ A aplicação contém autenticação, recuperação de senha e leitura dos vínc
 - Node.js 22.13+ com npm (recomendado Node 22 LTS para reproduzir esta entrega).
 - Docker Desktop com plugin Compose (ou Docker/Colima no macOS) para os serviços fornecidos. Sem Docker, disponibilize **MySQL 8.4** e Redis localmente e ajuste somente seus `.env`.
 - VS Code com Vue Official, PHP Intelephense e ESLint; sugestões em `.vscode/extensions.json`.
-- Git é recomendado. A pasta desta sessão foi recebida sem `.git`; inicialização/commit ficam a cargo do responsável pelo repositório.
+- Git é recomendado. Para obter uma cópia com histórico, use `git clone https://github.com/contatonomaci-pixel/fabric.git`. A pasta original desta sessão foi recebida sem `.git`; a publicação autorizada foi feita por checkout separado, sem substituir seus arquivos locais.
 
 Abra a pasta raiz no VS Code. Use terminais separados para API, SPA e worker. Os comandos PHP/npm são iguais em PowerShell e Unix; os comandos de cópia e variáveis diferem, conforme abaixo.
 
@@ -145,7 +145,7 @@ php artisan migrate:rollback
 php artisan migrate
 ```
 
-Restaure `DB_DATABASE` ao valor de desenvolvimento antes de subir a API. O CI fornecido automatiza up/down/up e a suíte real em MySQL 8.4/Redis, PHP 8.3 e 8.5, além de lint/build/testes da SPA e E2E. O workflow foi criado localmente; sua execução remota precisa ocorrer após revisão/publicação pelo responsável.
+Restaure `DB_DATABASE` ao valor de desenvolvimento antes de subir a API. O CI fornecido automatiza up/down/up e a suíte real em MySQL 8.4/Redis, PHP 8.3 e 8.5, além de lint/build/testes da SPA e E2E. O workflow está publicado em `.github/workflows/quality.yml` e executa em eventos `push`/`pull_request`; resultados verificáveis em [GitHub Actions](https://github.com/contatonomaci-pixel/fabric/actions), vinculados ao SHA de cada commit.
 
 ## 7. Repetir a homologação nativa descartável (macOS)
 
@@ -196,7 +196,7 @@ A homologação desta máquina usou Colima com socket `unix:///Users/mauriciosil
 
 Em 2026-11-07, foram executados Docker 29.7.2/Compose 5.5.0, MySQL 8.4.13, Redis 7.4.12 e Mailpit 1.33.0: **35 verificações passaram**, incluindo 23 API/111 assertions em cada runtime PHP, 8 SPA e 10 E2E. Tags móveis podem resolver versões diferentes no futuro; o roteiro registra as versões/IDs realmente utilizados. O guia normal do Windows permanece nas seções 1–6; este roteiro de automação usa caminhos e comandos do macOS.
 
-CI remota: o repositório informado é `https://github.com/contatonomaci-pixel/fabric.git`. Após consultas iniciais com 404, a API pública passou a responder em 2026-11-07: o repositório é público, ainda vazio, sem workflows ou execuções. É necessário publicar o código e `.github/workflows/quality.yml` para disparar a CI por push; essa publicação aguarda autorização explícita do responsável. Os resultados locais não comprovam execução no GitHub Actions.
+CI remota: após autorização explícita, o pacote da Fase 0 foi publicado em `https://github.com/contatonomaci-pixel/fabric.git`, branch `main`, commit `07e6d36decf81b0cd4e108167693cff35bf6bbd1`. A [primeira execução remota](https://github.com/contatonomaci-pixel/fabric/actions/runs/42338793688) foi iniciada automaticamente por push. Veja no STATUS os resultados observados, separados da homologação local com Mailpit/Compose.
 
 ## Limites desta entrega
 

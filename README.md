@@ -1,6 +1,6 @@
 # FactoryControl PRO — Projeto mestre para desenvolvimento com Codex
 
-**Status:** Fase 0 implementada: fundação executável, autenticação e layout base. Homologações nativa e Docker/Compose executadas com PHP 8.3/8.5, MySQL 8.4, Redis e Mailpit; Redis 7 validado no Compose original. Repositório GitHub agora acessível e público, ainda vazio; CI remota aguarda publicação autorizada do código. **Módulos de ERP ainda não implementados.**
+**Status:** Fase 0 implementada: fundação executável, autenticação e layout base. Homologações nativa e Docker/Compose executadas com PHP 8.3/8.5, MySQL 8.4, Redis e Mailpit; Redis 7 validado no Compose original. Código publicado com autorização em [contatonomaci-pixel/fabric](https://github.com/contatonomaci-pixel/fabric); [CI remota em validação](https://github.com/contatonomaci-pixel/fabric/actions). **Módulos de ERP ainda não implementados.**
 **Revisão:** 2026-11-07. **Idioma do produto:** pt-BR; moeda BRL; datas ISO no armazenamento e pt-BR na UI.
 
 ## Executar a fundação
