@@ -10,7 +10,9 @@ $app = require __DIR__.'/../../bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 $connection = config('database.default');
 $database = config('database.connections.'.$connection.'.database');
-$localSqlite = $connection === 'sqlite' && str_starts_with(realpath(dirname($database)) ?: '', realpath(sys_get_temp_dir()).'/factorycontrol-e2e-');
+$databaseDir = str_replace(DIRECTORY_SEPARATOR, '/', realpath(dirname($database)) ?: '');
+$temporaryRoot = str_replace(DIRECTORY_SEPARATOR, '/', realpath(sys_get_temp_dir()));
+$localSqlite = $connection === 'sqlite' && str_starts_with($databaseDir, $temporaryRoot.'/factorycontrol-e2e-');
 $localMysql = $connection === 'mysql' && str_ends_with($database, '_test') && in_array(config('database.connections.mysql.host'), ['127.0.0.1', 'localhost'], true);
 if (! $app->environment(['local', 'testing']) || (! $localSqlite && ! $localMysql)) {
     throw new RuntimeException('Contas E2E permitidas somente no banco local descartável do runner.');

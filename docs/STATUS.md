@@ -1,12 +1,12 @@
 # STATUS — controle de progresso do projeto
 
 **Data de criação:** 2026-11-06.
-**Situação:** Fase 1 autorizada e implementada em 2026-11-07, homologada localmente em PHP 8.3/8.5, MySQL 8.4, Redis 7 e Mailpit: 39 testes API em cada runtime, 12 SPA e 14 E2E. Inclui empresas/fábricas/depósitos, catálogo, unidades, SKUs, preços com histórico e Code128 SVG/PNG/PDF. CI específica da fase ainda pendente de publicação da branch de revisão. Fases 2–10 não autorizadas. Windows nativo/Safari/iOS real, homologação física de leitura/impressão e avisos moderados de ferramentas de desenvolvimento permanecem com os limites registrados no histórico.
+**Situação:** Fase 1 autorizada e implementada em 2026-11-07, homologada localmente e na [CI do PR #1](https://github.com/contatonomaci-pixel/fabric/actions/runs/42387827301): **39 testes API/287 assertions em cada PHP (8.3/8.5), 12 SPA e 14 E2E**. Inclui empresas/fábricas/depósitos, catálogo, unidades, SKUs, preços com histórico e Code128 SVG/PNG/PDF. Entrega na branch `feat/phase-1-catalog`, [PR #1 em rascunho para revisão](https://github.com/contatonomaci-pixel/fabric/pull/1); integração à main pendente. Fases 2–10 não autorizadas. Windows nativo/Safari/iOS real, homologação física e avisos moderados de desenvolvimento permanecem com os limites registrados.
 
 | Fase | Status | Observação |
 |---|---|---|
 | 0 — Fundação técnica | HOMOLOGADA LOCALMENTE E NA CI | Código publicado; quatro jobs aprovados após corrigir a preservação de tests/Unit em clones |
-| 1 — Catálogo/identificadores | IMPLEMENTADA; HOMOLOGADA LOCALMENTE | Empresas/estrutura, catálogo, UoM, SKUs/preços e Code128; revisão/CI da branch pendentes |
+| 1 — Catálogo/identificadores | HOMOLOGADA LOCALMENTE E NA CI; EM REVISÃO | 39 API por runtime, 12 SPA e 14 E2E; PR #1 em rascunho, sem merge/deploy |
 | 2 — Compras/estoque | PENDENTE | |
 | 3 — Fabricação/OP | PENDENTE | |
 | 4 — Qualidade/rastreabilidade | PENDENTE | |
@@ -368,3 +368,19 @@ A matriz detalhada contém **35 verificações com exit 0**, `success=true`, `te
 - Compose preservado: SHA-256 `51696b75bdf9bbe66af4e54e62acf8b4df50936fcbe5e8d867bd35bcf53dd50f`. Projeto/volumes descartáveis removidos após cada matriz; nenhuma conexão ao banco MySQL 9.6 preexistente ou infraestrutura remota foi usada para os testes.
 - Windows nativo, Safari/iOS real, scanner/impressora físicos e parâmetros técnicos/fiscais continuam fora da homologação desta sessão. Os avisos transitivos de desenvolvimento anteriores não foram reauditados/forçados nesta fase. Leitura por software não equivale a homologação de PDV.
 - Preparar branch de revisão e CI da Fase 1; sem deploy ou implementação de fases futuras. Próxima fase funcional recomendada: **Fase 2**, somente após revisão da Fase 1 e liberação explícita.
+
+**Branch de revisão e CI remota da Fase 1**
+- Implementação publicada no commit [`60eb3566e9bbee5194e41e70aae79b59d89164df`](https://github.com/contatonomaci-pixel/fabric/commit/60eb3566e9bbee5194e41e70aae79b59d89164df), branch `feat/phase-1-catalog`. Aberto [PR #1 em rascunho](https://github.com/contatonomaci-pixel/fabric/pull/1), com 77 arquivos alterados (47 criados / 30 adaptados); 202 arquivos no snapshot, sem ambientes locais/dependências instaladas/artefatos de QA.
+- [Run de push 42387386551](https://github.com/contatonomaci-pixel/fabric/actions/runs/42387386551) e [run do PR 42387827301](https://github.com/contatonomaci-pixel/fabric/actions/runs/42387827301) concluíram com `success`. Os quatro jobs e passos de Pint, migration rollback, instalação do leitor independente e testes foram conferidos pela API.
+
+| Job remoto no PR | Resultado extraído dos logs |
+|---|---|
+| API PHP 8.3 | **39 passaram / 287 assertions**, sem skipped; MySQL 8.4/Redis 7, concorrência e leitor ZBar |
+| API PHP 8.5 | **39 passaram / 287 assertions**, sem skipped; mesma matriz |
+| Web | **12 passaram / 5 arquivos**, lint/typecheck/build aprovados |
+| E2E PHP 8.3 | **14 passaram**, 23,2 s, Chromium desktop/mobile e SQLite descartável |
+
+- Logs e JSONs de evidência fora do projeto: `/private/tmp/factorycontrol-phase1-ci-jobs.json` e `factorycontrol-phase1-ci-{api83,api85,web,e2e}.log`. Nenhuma credencial impressa/versionada; autenticação Git existente utilizada para push e API do repositório.
+- Conferência final de portabilidade do runner: normalizados os separadores de caminhos na proteção do SQLite temporário, mantendo o confinamento ao diretório de E2E. Isso não comprova execução Windows; o runtime nativo continua pendente de homologação.
+- VM local desligada após a remoção dos containers/volumes de teste. MySQL preexistente **PID 950**, porta **3306**, confirmado ativo. A main permanece na entrega da Fase 0; esta fase fica disponível para revisão na branch/PR, sem integração automática.
+- Próximos passos: revisar/integrar o PR da Fase 1 e, depois, liberar explicitamente a Fase 2 se desejado. Nenhum módulo futuro foi iniciado.
