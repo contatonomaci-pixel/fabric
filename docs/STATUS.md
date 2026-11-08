@@ -1,14 +1,14 @@
 # STATUS — controle de progresso do projeto
 
 **Data de criação:** 2026-11-06.
-**Situação:** Fase 1 autorizada e implementada, com os três achados da revisão corrigidos em 2026-11-08 e [CI das correções aprovada](https://github.com/contatonomaci-pixel/fabric/actions/runs/42490071950): **42 testes API/324 assertions em cada PHP (8.3/8.5), 16 SPA e 14 E2E**. Inclui empresas/fábricas/depósitos, catálogo, unidades, SKUs, preços com histórico e Code128 SVG/PNG/PDF. Entrega na branch `feat/phase-1-catalog`, [PR #1 em rascunho para revisão](https://github.com/contatonomaci-pixel/fabric/pull/1); integração à main pendente. Fases 2–10 não autorizadas. Windows nativo/Safari/iOS real, homologação física e avisos moderados de desenvolvimento permanecem com os limites registrados.
+**Situação:** Fase 1 autorizada e implementada, com os três achados da revisão corrigidos em 2026-11-08 e [CI da main aprovada](https://github.com/contatonomaci-pixel/fabric/actions/runs/42490900510): **42 testes API/324 assertions em cada PHP (8.3/8.5), 16 SPA e 14 E2E**. Inclui empresas/fábricas/depósitos, catálogo, unidades, SKUs, preços com histórico e Code128 SVG/PNG/PDF. Entrega integrada à `main` pelo [PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1), merge `f35ff65` em 2026-11-08. Fases 2–10 não autorizadas. Windows nativo/Safari/iOS real, homologação física e avisos moderados de desenvolvimento permanecem com os limites registrados.
 
 **Revisão técnica de 2026-11-08:** três achados P2 reproduzidos e corrigidos, com regressões incorporadas e aprovadas localmente e na CI. Limites de família coerentes; características de variante editáveis antes do primeiro SKU; estado próprio e disponibilidade apresentados separadamente. Evidências completas no final deste documento.
 
 | Fase | Status | Observação |
 |---|---|---|
 | 0 — Fundação técnica | HOMOLOGADA LOCALMENTE E NA CI | Código publicado; quatro jobs aprovados após corrigir a preservação de tests/Unit em clones |
-| 1 — Catálogo/identificadores | CORREÇÕES VALIDADAS LOCALMENTE E NA CI; EM REVISÃO | Três achados P2 corrigidos; 42 API por runtime, 16 SPA e 14 E2E; PR #1 sem merge/deploy |
+| 1 — Catálogo/identificadores | INTEGRADA À MAIN; CI APROVADA | Três achados P2 corrigidos; 42 API por runtime, 16 SPA e 14 E2E; PR #1 integrado, sem deploy |
 | 2 — Compras/estoque | PENDENTE | |
 | 3 — Fabricação/OP | PENDENTE | |
 | 4 — Qualidade/rastreabilidade | PENDENTE | |
@@ -466,3 +466,23 @@ Nenhum achado P0/P1 foi confirmado nesta revisão. Isso não equivale a auditori
 - Evidências fora do projeto: `/private/tmp/factorycontrol-phase1-fixes-local.json`, `factorycontrol-phase1-fixes-ci-result.json`, `factorycontrol-phase1-fixes-ci-jobs.json` e `factorycontrol-phase1-fixes-{api83,api85,web,e2e}.log`.
 - Revisão do diff final, validação documental e hashes concluídos: **202 arquivos locais idênticos à branch**; Compose original SHA-256 `51696b75bdf9bbe66af4e54e62acf8b4df50936fcbe5e8d867bd35bcf53dd50f`. Nenhum ambiente local, credencial, dependência instalada ou artefato de QA versionado. README também atualizado no fechamento documental, totalizando 13 arquivos alterados nesta continuação; manifesto global da Fase 1 permanece com os mesmos 77 arquivos.
 - Os três achados P2 desta revisão estão corrigidos e cobertos por regressões; isso não elimina os limites de homologação Windows/Safari/iOS/hardware nem os avisos transitivos anteriores. PR #1 permanece em rascunho para revisão humana. Próximo passo: revisar/integrar a Fase 1; Fase 2 somente após liberação explícita. Nenhum deploy foi realizado.
+
+### 2026-11-08 — Integração da Fase 1 à main
+
+**Escopo, conferência e integração**
+- Usuário solicitou “continue” após a conclusão das correções e a recomendação de revisar/integrar o PR. Escopo anunciado desta continuação: conferência final e integração da Fase 1; Fase 2 permanece sem liberação. Objetivo/arquivos: registrar a integração em `docs/STATUS.md`, README e guias 17/19. Riscos verificados: head/base diferentes dos revisados, conflitos, checks reprovados/pendentes, discussões de revisão abertas e divergência dos arquivos locais.
+- Antes da integração, workspace e checkout isolado estavam sem alterações. Conferidos **202 arquivos idênticos**, nenhum `.env`/dependência/build/relatório versionado; SHA-256 do Compose original mantido. `git diff --check main...HEAD` e `python3 scripts/validar-pacote.py` passaram (11 documentos essenciais). A pasta da IDE continua sem `.git` e não foi substituída.
+- Inspeção remota: PR #1 aberto, head `a369fbaec48ede7d82814530ee816bc45109a558`, base `59d0b0be8152d9c8d0a08603d82a2b305ebd6075`, `mergeable=true`, `mergeable_state=clean`, **oito checks aprovados** (push/PR). Nenhuma revisão formal registrada e nenhuma discussão não resolvida; não foi criado parecer humano fictício nem contornada proteção de branch.
+- Conector GitHub novamente retornou `Unknown tool`; usado transporte Git/API já autenticado. Revalidados head, base, checks e discussões antes de cada mudança. PR retirado do rascunho e integrado com **merge commit**, preservando o histórico e exigindo o SHA revisado no pedido de merge. Sem force, exclusão de branch ou mudanças de configuração do repositório.
+- GitHub confirmou `merged=true`, PR fechado e main no commit [`f35ff654dbb0899b2eb218dab7f1ad7cb0d4e6d9`](https://github.com/contatonomaci-pixel/fabric/commit/f35ff654dbb0899b2eb218dab7f1ad7cb0d4e6d9), em **2026-11-08 14:39:45 UTC**. [PR #1 integrado](https://github.com/contatonomaci-pixel/fabric/pull/1).
+- Checkout isolado sincronizado por fetch e fast-forward da main. `git diff --exit-code a369fba origin/main` retornou zero: árvore integrada idêntica ao snapshot aprovado, sem alteração funcional nova. Guias atuais passam a orientar clone/atualização da `main`.
+- Evidências locais temporárias: `/private/tmp/factorycontrol-phase1-premerge.json`, `factorycontrol-phase1-ready.json`, `factorycontrol-phase1-merge-result.json` e `factorycontrol-phase1-postmerge.json`; credenciais somente em memória, sem impressão/versionamento.
+
+**CI da main e documentação**
+- [Run 42490900510 da main](https://github.com/contatonomaci-pixel/fabric/actions/runs/42490900510), commit de merge `f35ff65`: `completed/success`. Quatro jobs aprovados, com resultados conferidos nos logs: **42 testes / 324 assertions em cada PHP (8.3/8.5)**, sem skipped, em MySQL 8.4/Redis com concorrência/ZBar; **16 testes SPA / 5 arquivos**, lint/typecheck/build; **14 E2E** Chromium desktop/mobile com SQLite descartável.
+- Evidências: `/private/tmp/factorycontrol-phase1-merge-ci-result.json`, `factorycontrol-phase1-merge-ci-jobs.json` e `factorycontrol-phase1-merge-{api83,api85,web,e2e}.log`. Não foi necessário repetir manualmente as suítes locais: a integração manteve a mesma árvore, e a CI executou novamente a matriz completa na main.
+- Publicado fechamento exclusivamente documental para refletir o estado integrado e orientar clone/atualização da main. Validação documental e `git diff --check` passaram. CI automática desse fechamento também acompanhada; sem mudanças adicionais de aplicação.
+
+**Limites e próximo passo**
+- Esta continuação altera somente quatro arquivos documentais: `README.md`, `docs/17-executar-localmente.md`, `docs/19-catalogo-fase-1.md` e `docs/STATUS.md`. Sem deploy, migrations em banco existente, alteração de Compose ou início de módulo futuro. Revalidação automática da main acompanhada antes de concluir a entrega.
+- Windows/Safari/iOS real, equipamentos físicos e avisos transitivos de desenvolvimento mantêm os limites anteriores. Próxima fase funcional recomendada: **Fase 2 — fornecedores, compras, recebimento, estoque/lotes, FEFO e pesagens básicas**, somente após autorização específica.

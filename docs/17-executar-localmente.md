@@ -8,7 +8,7 @@ A aplicação contém autenticação, recuperação de senha, estrutura de empre
 - Node.js 22.13+ com npm (recomendado Node 22 LTS para reproduzir esta entrega).
 - Docker Desktop com plugin Compose (ou Docker/Colima no macOS) para os serviços fornecidos. Sem Docker, disponibilize **MySQL 8.4** e Redis localmente e ajuste somente seus `.env`.
 - VS Code com Vue Official, PHP Intelephense e ESLint; sugestões em `.vscode/extensions.json`.
-- Git é recomendado. Enquanto a Fase 1 está em revisão no [PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1), use `git clone --branch feat/phase-1-catalog https://github.com/contatonomaci-pixel/fabric.git` para obter esta entrega. Após a integração, o clone normal da main também a conterá. A pasta original desta sessão foi recebida sem `.git`; a publicação foi feita por checkout separado, sem substituir seus arquivos locais.
+- Git é recomendado. A Fase 1 foi integrada à `main` pelo [PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1). Use `git clone https://github.com/contatonomaci-pixel/fabric.git` para obter esta entrega. Em um clone existente sem alterações locais pendentes, use `git switch main` e `git pull --ff-only`. A pasta original desta sessão foi recebida sem `.git`; a publicação foi feita por checkout separado, sem substituir seus arquivos locais.
 
 Abra a pasta raiz no VS Code. Use terminais separados para API, SPA e worker. Os comandos PHP/npm são iguais em PowerShell e Unix; os comandos de cópia e variáveis diferem, conforme abaixo.
 

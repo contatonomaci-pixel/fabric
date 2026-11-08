@@ -2,7 +2,7 @@
 
 Autorizada pelo usuário em 2026-11-07. Inclui empresas, fábricas, depósitos, famílias, produtos, variantes, unidades, SKUs, preços e Code128 interno. Não movimenta estoque, registra pesagens, produz, vende, emite documento fiscal ou gera RCN/GTIN. Resultados de qualidade atualizados em [STATUS](STATUS.md).
 
-Entrega em revisão no [PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1), branch `feat/phase-1-catalog`. [CI das correções aprovada](https://github.com/contatonomaci-pixel/fabric/actions/runs/42490071950): 42 testes/324 assertions em cada PHP, 16 SPA e 14 E2E; ZBar verificou o PNG na CI. Integração à main pendente de revisão, sem deploy.
+Entrega integrada à `main` pelo [PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1), merge [`f35ff65`](https://github.com/contatonomaci-pixel/fabric/commit/f35ff654dbb0899b2eb218dab7f1ad7cb0d4e6d9). [CI da main aprovada](https://github.com/contatonomaci-pixel/fabric/actions/runs/42490900510): 42 testes/324 assertions em cada PHP, 16 SPA e 14 E2E; ZBar verificou o PNG na CI. Sem deploy; a Fase 2 depende de autorização específica.
 
 ## Atualizar uma instalação local da Fase 0
 
