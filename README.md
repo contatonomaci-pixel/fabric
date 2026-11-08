@@ -1,7 +1,7 @@
 # FactoryControl PRO — Projeto mestre para desenvolvimento com Codex
 
-**Status:** Fase 1 implementada, homologada localmente e com [CI aprovada](https://github.com/contatonomaci-pixel/fabric/actions/runs/42387827301): empresas/fábricas/depósitos, catálogo, unidades, SKUs, preços auditados e Code128 interno. Disponível na branch `feat/phase-1-catalog`, em [revisão no PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1). Evidências e limites em [STATUS](docs/STATUS.md). **Estoque, produção, financeiro, RCN/GTIN e BI ainda não implementados.**
-**Revisão:** 2026-11-07. **Idioma do produto:** pt-BR; moeda BRL; datas ISO no armazenamento e pt-BR na UI.
+**Status:** Fase 1 implementada, homologada localmente e com [CI aprovada](https://github.com/contatonomaci-pixel/fabric/actions/runs/42490071950): empresas/fábricas/depósitos, catálogo, unidades, SKUs, preços auditados e Code128 interno. Disponível na branch `feat/phase-1-catalog`, em [revisão no PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1). Evidências e limites em [STATUS](docs/STATUS.md). **Estoque, produção, financeiro, RCN/GTIN e BI ainda não implementados.**
+**Revisão:** 2026-11-08. **Idioma do produto:** pt-BR; moeda BRL; datas ISO no armazenamento e pt-BR na UI.
 
 ## Executar a fundação
 

@@ -1,14 +1,14 @@
 # STATUS — controle de progresso do projeto
 
 **Data de criação:** 2026-11-06.
-**Situação:** Fase 1 autorizada e implementada em 2026-11-07, homologada localmente e na [CI do PR #1](https://github.com/contatonomaci-pixel/fabric/actions/runs/42387827301): **39 testes API/287 assertions em cada PHP (8.3/8.5), 12 SPA e 14 E2E**. Inclui empresas/fábricas/depósitos, catálogo, unidades, SKUs, preços com histórico e Code128 SVG/PNG/PDF. Entrega na branch `feat/phase-1-catalog`, [PR #1 em rascunho para revisão](https://github.com/contatonomaci-pixel/fabric/pull/1); integração à main pendente. Fases 2–10 não autorizadas. Windows nativo/Safari/iOS real, homologação física e avisos moderados de desenvolvimento permanecem com os limites registrados.
+**Situação:** Fase 1 autorizada e implementada, com os três achados da revisão corrigidos em 2026-11-08 e [CI das correções aprovada](https://github.com/contatonomaci-pixel/fabric/actions/runs/42490071950): **42 testes API/324 assertions em cada PHP (8.3/8.5), 16 SPA e 14 E2E**. Inclui empresas/fábricas/depósitos, catálogo, unidades, SKUs, preços com histórico e Code128 SVG/PNG/PDF. Entrega na branch `feat/phase-1-catalog`, [PR #1 em rascunho para revisão](https://github.com/contatonomaci-pixel/fabric/pull/1); integração à main pendente. Fases 2–10 não autorizadas. Windows nativo/Safari/iOS real, homologação física e avisos moderados de desenvolvimento permanecem com os limites registrados.
 
-**Revisão técnica de 2026-11-08:** três achados P2 reproduzidos e corrigidos localmente na Fase 1: limite da hierarquia de famílias, edição de variante sem SKU e distinção entre filtro de estado próprio e disponibilidade. Regressões incorporadas; **37 testes API/262 assertions (5 skipped), 16 SPA e 14 E2E passaram localmente**. CI das correções em preparação; a CI anterior acima permanece como evidência histórica. Ver o registro de correção no final deste documento antes de integrar o PR.
+**Revisão técnica de 2026-11-08:** três achados P2 reproduzidos e corrigidos, com regressões incorporadas e aprovadas localmente e na CI. Limites de família coerentes; características de variante editáveis antes do primeiro SKU; estado próprio e disponibilidade apresentados separadamente. Evidências completas no final deste documento.
 
 | Fase | Status | Observação |
 |---|---|---|
 | 0 — Fundação técnica | HOMOLOGADA LOCALMENTE E NA CI | Código publicado; quatro jobs aprovados após corrigir a preservação de tests/Unit em clones |
-| 1 — Catálogo/identificadores | CORREÇÕES VALIDADAS LOCALMENTE; CI PENDENTE | Três achados P2 corrigidos com regressões; PR #1 permanece em revisão, sem merge/deploy |
+| 1 — Catálogo/identificadores | CORREÇÕES VALIDADAS LOCALMENTE E NA CI; EM REVISÃO | Três achados P2 corrigidos; 42 API por runtime, 16 SPA e 14 E2E; PR #1 sem merge/deploy |
 | 2 — Compras/estoque | PENDENTE | |
 | 3 — Fabricação/OP | PENDENTE | |
 | 4 — Qualidade/rastreabilidade | PENDENTE | |
@@ -452,3 +452,17 @@ Nenhum achado P0/P1 foi confirmado nesta revisão. Isso não equivale a auditori
 - URL `http://localhost:5173`; desktop 1487×1058 e mobile Chromium 390×844. Skill frontend-testing-debugging já aplicada; Browser integrado sem ferramenta de execução disponível, mantido Playwright do projeto para o fluxo autorizado. Fluxos reais de cadastro/edição/estado exercitados em ambas as dimensões; verificações existentes de conteúdo, overlay/erros e overflow preservadas. Capturas `dependency-desktop.png` e `dependency-mobile.png` inspecionadas com `view_image`, em `/private/var/folders/9v/c9y9j1gx7_b9h0y3jvhfww_80000gn/T/factorycontrol-qa/`.
 - Arquivos alterados: `apps/api/app/Domain/Catalog/{CatalogService,ProductVariant}.php`, `apps/api/tests/Feature/CatalogTest.php`; `apps/web/src/lib/catalog.ts`, `apps/web/src/components/{CatalogForm,CatalogPanel}.vue`, seus dois testes e `apps/web/e2e/catalog.spec.ts`; `docs/api/openapi.json`, `docs/19-catalogo-fase-1.md` e `docs/STATUS.md`.
 - Publicação das correções no PR #1 e CI MySQL/Redis/PHP 8.3/8.5 serão acompanhadas; os cinco skipped locais não representam aprovação dessa matriz. Main e MySQL preexistente preservados. Sem deploy ou autorização para a Fase 2.
+
+**CI das correções aprovada e fechamento**
+- Correções publicadas no commit [`1b6234dc65e1a9ad15142b1643165b855a1c293a`](https://github.com/contatonomaci-pixel/fabric/commit/1b6234dc65e1a9ad15142b1643165b855a1c293a), no PR #1 existente, sem force/merge. [Run do PR 42490071950](https://github.com/contatonomaci-pixel/fabric/actions/runs/42490071950) concluído com `success`; os quatro jobs e os logs finais foram conferidos.
+
+| Job remoto das correções | Evidência extraída dos logs |
+|---|---|
+| API PHP 8.3 | **42 passaram / 324 assertions**, sem skipped; MySQL 8.4/Redis, concorrência e leitura independente com ZBar |
+| API PHP 8.5 | **42 passaram / 324 assertions**, sem skipped; mesma matriz |
+| Web | **16 passaram / 5 arquivos**, lint, typecheck e build aprovados |
+| E2E PHP 8.3 | **14 passaram**, 24,6 s; Chromium desktop/mobile e SQLite descartável, incluindo os fluxos de regressão |
+
+- Evidências fora do projeto: `/private/tmp/factorycontrol-phase1-fixes-local.json`, `factorycontrol-phase1-fixes-ci-result.json`, `factorycontrol-phase1-fixes-ci-jobs.json` e `factorycontrol-phase1-fixes-{api83,api85,web,e2e}.log`.
+- Revisão do diff final, validação documental e hashes concluídos: **202 arquivos locais idênticos à branch**; Compose original SHA-256 `51696b75bdf9bbe66af4e54e62acf8b4df50936fcbe5e8d867bd35bcf53dd50f`. Nenhum ambiente local, credencial, dependência instalada ou artefato de QA versionado. README também atualizado no fechamento documental, totalizando 13 arquivos alterados nesta continuação; manifesto global da Fase 1 permanece com os mesmos 77 arquivos.
+- Os três achados P2 desta revisão estão corrigidos e cobertos por regressões; isso não elimina os limites de homologação Windows/Safari/iOS/hardware nem os avisos transitivos anteriores. PR #1 permanece em rascunho para revisão humana. Próximo passo: revisar/integrar a Fase 1; Fase 2 somente após liberação explícita. Nenhum deploy foi realizado.
