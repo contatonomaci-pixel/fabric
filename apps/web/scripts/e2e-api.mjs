@@ -43,6 +43,7 @@ if (!env.DEMO_PASSWORD)
 for (const args of [
   ["artisan", "migrate", "--force"],
   ["artisan", "db:seed", "--class=DemoSeeder", "--force"],
+  ["tests/support/seed-e2e-users.php"],
 ]) {
   const result = spawnSync("php", args, { cwd: api, env, stdio: "inherit" });
   if (result.status !== 0) {

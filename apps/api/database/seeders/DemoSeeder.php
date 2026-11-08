@@ -27,6 +27,7 @@ class DemoSeeder extends Seeder
             }
             $role = DB::table('roles')->where('code', 'owner')->value('id');
             $user->companies()->syncWithoutDetaching([$company->id => ['role_id' => $role]]);
+            $this->call(CatalogDemoSeeder::class);
         });
     }
 }

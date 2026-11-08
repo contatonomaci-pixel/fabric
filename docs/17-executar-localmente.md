@@ -1,14 +1,14 @@
-# Executar a Fase 0 no Windows / VS Code e Unix
+# Executar localmente no Windows / VS Code e Unix
 
-A aplicação contém autenticação, recuperação de senha e leitura dos vínculos de empresa. Não contém módulos operacionais. Todo dado de demonstração é fictício e opcional.
+A aplicação contém autenticação, recuperação de senha, estrutura de empresas/fábricas/depósitos e catálogo da Fase 1. Uso, atualização e regras dos cadastros em [Catálogo da Fase 1](19-catalogo-fase-1.md). Estoque, produção, vendas e financeiro não estão implementados. Todo dado de demonstração é fictício e opcional.
 
 ## Pré-requisitos
 
-- PHP 8.3–8.5 e Composer 2. Extensões: ctype, curl, dom, fileinfo, filter, hash, intl, mbstring, openssl, pcre, PDO, pdo_mysql, session, tokenizer, xml e bcmath. Para testes rápidos/E2E: pdo_sqlite/sqlite3.
+- PHP 8.3–8.5 e Composer 2. Extensões: ctype, curl, dom, fileinfo, filter, hash, intl, mbstring, openssl, pcre, PDO, pdo_mysql, session, tokenizer, xml, bcmath e **gd** (PNG/PDF). Para testes rápidos/E2E: pdo_sqlite/sqlite3.
 - Node.js 22.13+ com npm (recomendado Node 22 LTS para reproduzir esta entrega).
 - Docker Desktop com plugin Compose (ou Docker/Colima no macOS) para os serviços fornecidos. Sem Docker, disponibilize **MySQL 8.4** e Redis localmente e ajuste somente seus `.env`.
 - VS Code com Vue Official, PHP Intelephense e ESLint; sugestões em `.vscode/extensions.json`.
-- Git é recomendado. Para obter uma cópia com histórico, use `git clone https://github.com/contatonomaci-pixel/fabric.git`. A pasta original desta sessão foi recebida sem `.git`; a publicação autorizada foi feita por checkout separado, sem substituir seus arquivos locais.
+- Git é recomendado. Enquanto a Fase 1 está em revisão no [PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1), use `git clone --branch feat/phase-1-catalog https://github.com/contatonomaci-pixel/fabric.git` para obter esta entrega. Após a integração, o clone normal da main também a conterá. A pasta original desta sessão foi recebida sem `.git`; a publicação foi feita por checkout separado, sem substituir seus arquivos locais.
 
 Abra a pasta raiz no VS Code. Use terminais separados para API, SPA e worker. Os comandos PHP/npm são iguais em PowerShell e Unix; os comandos de cópia e variáveis diferem, conforme abaixo.
 
@@ -50,7 +50,7 @@ php artisan db:seed
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-`db:seed` cria apenas papéis/permissão base: proprietário e auditor consultam empresas vinculadas; operador não possui essa permissão. Não cria usuários nem senha padrão. Não há registro público ou edição administrativa de papéis nesta fase.
+`db:seed` instala papéis/permissões e unidades padrão das empresas existentes. Proprietário gerencia sua estrutura/catálogo; auditor consulta; operador não recebe administração. Não cria usuários nem senha padrão. Não há registro público ou edição administrativa de papéis nesta fase.
 
 Para acessar com dados fictícios, pare temporariamente o servidor ou use outro terminal em `apps/api`, defina `DEMO_PASSWORD` no `.env` com uma senha local de pelo menos 12 caracteres e execute:
 
@@ -58,7 +58,7 @@ Para acessar com dados fictícios, pare temporariamente o servidor ou use outro 
 php artisan db:seed --class=DemoSeeder
 ```
 
-Conta: `demo@example.test`, empresa: `Fábrica Demonstração — FICTÍCIA`. A senha é a que você definiu, armazenada com hash. O seeder é idempotente e não redefine a senha de um usuário existente; somente funciona em `local/testing`. Remova `DEMO_PASSWORD` do `.env` depois de criar a conta. Não há fábricas/depósitos nesta fase.
+Conta: `demo@example.test`, empresa: `Fábrica Demonstração — FICTÍCIA`. A senha é a que você definiu, armazenada com hash. O seeder é idempotente e não redefine a senha de um usuário existente; somente funciona em `local/testing`. Remova `DEMO_PASSWORD` do `.env` depois de criar a conta. A Fase 1 acrescenta fábrica/depósito e os exemplos de catálogo fictícios, com preços não definidos.
 
 ## 3. SPA — outro terminal em apps/web
 
@@ -102,7 +102,7 @@ vendor/bin/pint --test
 
 No Windows, se o shell não resolver o proxy do Pint, use `php vendor/laravel/pint/builds/pint --test`.
 
-A suíte padrão utiliza SQLite em memória e não acessa o banco de desenvolvimento. Os três testes de infraestrutura real são marcados **skipped** nessa execução; não confundir com homologação MySQL.
+A suíte padrão utiliza SQLite em memória e não acessa o banco de desenvolvimento. Os três testes de infraestrutura real e os dois de concorrência MySQL são marcados **skipped** nessa execução; não confundir com homologação MySQL.
 
 Em `apps/web`:
 
@@ -167,7 +167,7 @@ O último argumento é específico das bibliotecas desta instalação Homebrew e
 
 O roteiro cria MySQL em 33307, Redis em 26380, Mailpit SMTP em 11025/HTTP em 18025 e API de smoke em 18000, sempre no loopback, além do E2E 8000/5173. Bancos e senhas são descartáveis. Ele executa migrations up/down/up, API nos dois runtimes, worker real, envio/captura do reset pelo Mailpit, revogação da sessão, token de uso único, rejeição da senha anterior, login com nova senha, readiness 503 com Redis desligado e os comandos web/E2E. Ao terminar, remove o ambiente e grava a evidência sem credenciais em `/private/tmp/factorycontrol-homologation.json`.
 
-O E2E usa MySQL somente quando recebe `FACTORYCONTROL_E2E_PROFILE` criado pelo roteiro; por padrão continua SQLite. Não apontar perfis ao banco de desenvolvimento. Na suíte padrão SQLite, os três testes de infraestrutura real são skipped; na matriz MySQL todos os 23 testes devem passar.
+O E2E usa MySQL somente quando recebe `FACTORYCONTROL_E2E_PROFILE` criado pelo roteiro; por padrão continua SQLite. Não apontar perfis ao banco de desenvolvimento. A Fase 1 ampliou a suíte: SQLite deixa skipped os três testes de infraestrutura e os dois de concorrência; na matriz MySQL todos os testes devem passar. Contagens atuais no STATUS.
 
 Essa execução nativa é distinta da homologação adicional do Compose com Redis 7 descrita abaixo. Nenhuma delas substitui a execução remota do GitHub Actions. Veja os resultados mais recentes e limites no STATUS. Para validar o contrato sem alterar dependências da aplicação:
 
@@ -200,6 +200,6 @@ CI remota: após autorização explícita, o pacote da Fase 0 foi publicado em `
 
 ## Limites desta entrega
 
-Sem cadastro de empresas/fábricas/unidades, produtos, produção, financeiro, GTIN/RCN, estoque ou BI. A navegação não apresenta esses módulos como funcionais. Marca e convenção de IDs continuam sujeitas à confirmação antes de expandir a Fase 1. Nenhum deploy foi realizado.
+Disponíveis os cadastros da Fase 1, conforme o guia específico. Sem produção, financeiro, GTIN/RCN, estoque ou BI. A navegação não apresenta módulos futuros como funcionais. Marca, regras técnicas e homologação física continuam pendentes; a convenção de IDs da fundação foi mantida. Nenhum deploy foi realizado.
 
 Em eventual ambiente HTTPS futuro, `SESSION_SECURE_COOKIE=true`, domínios first-party e `FRONTEND_URL` devem corresponder à topologia validada. A configuração HTTP local não é uma configuração de produção; produção permanece fora desta fase.

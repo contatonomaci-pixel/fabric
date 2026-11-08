@@ -33,9 +33,9 @@ class User extends Authenticatable
         return $this->belongsToMany(Company::class, 'company_users')->withPivot('role_id');
     }
 
-    public function hasCompanyPermission(Company $company, string $permission): bool
+    public function hasCompanyPermission(Company $company, string $permission, bool $allowInactive = false): bool
     {
-        return $this->active && $company->active && $this->companies()->where('companies.id', $company->id)
+        return $this->active && ($company->active || $allowInactive) && $this->companies()->where('companies.id', $company->id)
             ->whereExists(fn ($q) => $q->selectRaw('1')->from('role_permissions')->join('permissions', 'permissions.id', '=', 'role_permissions.permission_id')
                 ->whereColumn('role_permissions.role_id', 'company_users.role_id')->where('permissions.code', $permission))->exists();
     }

@@ -1,0 +1,329 @@
+select {
+  font: inherit;
+}
+select:focus-visible {
+  outline: 3px solid #348c70;
+  outline-offset: 3px;
+}
+.company-picker {
+  margin: 26px 0 20px;
+  padding: 18px;
+  background: #f5f8f7;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 12px 20px;
+}
+.company-picker small,
+.company-picker > .feedback {
+  grid-column: 1 / -1;
+}
+.company-picker label,
+.catalog-panel label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.company-picker input,
+.company-picker select,
+.catalog-panel input:not([type="checkbox"]),
+.catalog-panel select {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  border: 1px solid #a7b6b0;
+  border-radius: 5px;
+  padding: 9px 10px;
+  color: #202b33;
+  background: white;
+  font-weight: 400;
+}
+.company-picker button,
+.catalog-panel button {
+  border: 1px solid #a7b6b0;
+  border-radius: 5px;
+  padding: 8px 14px;
+  min-height: 44px;
+  background: #fff;
+  color: #17634b;
+  font-size: 14px;
+}
+.catalog-panel button.primary-button {
+  background: #17634b;
+  color: white;
+  border-color: #17634b;
+  width: auto;
+  margin: 0;
+  flex: 0 0 auto;
+}
+.catalog-filter-details summary {
+  cursor: pointer;
+  color: var(--accent);
+  padding: 8px 0;
+}
+.catalog-filter-details[open] summary {
+  margin-bottom: 12px;
+}
+.catalog-panel button:hover:not(:disabled),
+.company-picker button:hover:not(:disabled) {
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.lookup-search {
+  display: flex;
+  align-items: end;
+  gap: 8px;
+  margin-top: 8px;
+}
+.lookup-search input {
+  flex: 1;
+}
+.lookup-search button {
+  flex-shrink: 0;
+}
+.catalog-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 24px 0;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+.catalog-tabs button {
+  background: #f4f6f5;
+  padding: 9px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-weight: 600;
+}
+.catalog-tabs button[aria-current="page"] {
+  background: #17634b;
+  border-color: #17634b;
+  color: white;
+}
+.catalog-panel {
+  margin-top: 24px;
+}
+.catalog-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.catalog-form {
+  padding: 22px;
+  background: #f7faf8;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 20px 0;
+}
+.catalog-form h3,
+.catalog-record h3 {
+  font-size: 18px;
+  font-weight: 650;
+  margin: 0 0 8px;
+  overflow-wrap: anywhere;
+}
+.catalog-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 24px;
+  margin: 20px 0;
+}
+.catalog-form-grid > *,
+.catalog-toolbar > *,
+.catalog-filters > * {
+  min-width: 0;
+}
+.catalog-form .full-width {
+  grid-column: 1 / -1;
+}
+.catalog-form fieldset {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px;
+}
+.catalog-form legend {
+  padding: 0 6px;
+  font-weight: 600;
+}
+.attribute-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr auto;
+  gap: 8px;
+  align-items: center;
+  margin: 10px 0;
+}
+.attribute-row label {
+  grid-row: auto;
+}
+.attribute-row input {
+  grid-row: 2;
+}
+.attribute-row button {
+  grid-row: 2;
+}
+.catalog-form .checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 12px;
+  min-height: 44px;
+}
+.checkbox-field input {
+  width: 20px;
+  height: 20px;
+  accent-color: #17634b;
+  flex-shrink: 0;
+}
+.catalog-toolbar {
+  display: flex;
+  align-items: end;
+  gap: 14px;
+  margin: 20px 0 16px;
+}
+.catalog-toolbar label:first-child {
+  flex: 1;
+}
+.catalog-toolbar label {
+  margin: 0;
+}
+.catalog-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.catalog-list {
+  border-top: 1px solid var(--border);
+}
+.catalog-record {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px 20px;
+  padding: 22px 0;
+  border-bottom: 1px solid var(--border);
+}
+.record-main p {
+  margin-top: 4px;
+  overflow-wrap: anywhere;
+  color: #46584f;
+  font-size: 14px;
+}
+.catalog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+.catalog-record > .catalog-actions {
+  align-self: start;
+}
+.state-tag {
+  display: inline-block;
+  color: #16573e;
+  background: #eaf5ee;
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.state-tag.inactive {
+  color: #714f1b;
+  background: #f9f0df;
+}
+.barcode-preview {
+  grid-column: 1 / -1;
+  background: #fff;
+  border: 1px solid #e2e8e4;
+  border-radius: 6px;
+  padding: 14px;
+}
+.barcode-preview img {
+  display: block;
+  width: 300px;
+  max-width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+}
+.barcode-preview p {
+  font-size: 12px;
+  color: #56616a;
+  overflow-wrap: anywhere;
+  margin: 8px 0;
+}
+.barcode-preview a {
+  font-size: 14px;
+}
+.catalog-history {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 22px;
+  margin: 24px 0;
+}
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.history-list li {
+  border-bottom: 1px solid var(--border);
+  padding: 14px 0;
+  overflow-wrap: anywhere;
+}
+.history-list p {
+  font-size: 14px;
+  margin-top: 5px;
+}
+.catalog-panel .field-help {
+  display: block;
+  font-size: 13px;
+  color: #56616a;
+  margin-top: 6px;
+}
+.catalog-panel .feedback.success {
+  background: #edf8f0;
+  border: 1px solid #b9d4c3;
+  padding: 12px;
+  border-radius: 6px;
+}
+@media (max-width: 760px) {
+  .company-picker,
+  .catalog-form-grid,
+  .catalog-filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .catalog-heading {
+    flex-wrap: wrap;
+  }
+  .catalog-form,
+  .catalog-history {
+    padding: 16px;
+  }
+  .catalog-record {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .catalog-toolbar {
+    flex-wrap: wrap;
+  }
+  .catalog-toolbar label:first-child {
+    flex: 1 1 100%;
+  }
+  .attribute-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .attribute-row input,
+  .attribute-row button {
+    grid-row: auto;
+  }
+  .sidebar nav {
+    flex-wrap: wrap;
+  }
+  .breadcrumb {
+    white-space: normal;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+}

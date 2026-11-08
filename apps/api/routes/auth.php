@@ -11,11 +11,14 @@ Route::prefix('api/v1')->group(function () {
         Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:login');
         Route::post('auth/forgot-password', [PasswordController::class, 'forgot'])->middleware('throttle:password');
         Route::post('auth/reset-password', [PasswordController::class, 'reset'])->middleware('throttle:password');
-        Route::middleware(['auth:sanctum', 'active', 'throttle:120,1'])->group(function () {
+        Route::middleware(['auth:sanctum', 'active', 'throttle:workspace'])->group(function () {
             Route::get('me', [AuthController::class, 'me']);
             Route::post('auth/logout', [AuthController::class, 'logout']);
             Route::get('companies', [CompanyController::class, 'index']);
             Route::get('companies/{company}', [CompanyController::class, 'show']);
+            Route::post('companies', [CompanyController::class, 'store']);
+            Route::patch('companies/{company}', [CompanyController::class, 'update']);
+            require __DIR__.'/catalog.php';
         });
     });
 });

@@ -13,6 +13,6 @@ class CompanyListRequest extends FormRequest
 
     public function rules(): array
     {
-        return ['page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100']];
+        return ['page' => ['sometimes', 'integer', 'min:1'], 'per_page' => ['sometimes', 'integer', 'min:1', 'max:100'], 'q' => ['nullable', 'string', 'max:100'], 'include_inactive' => ['sometimes', 'boolean']];
     }
 }

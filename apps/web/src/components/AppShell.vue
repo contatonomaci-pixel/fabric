@@ -2,7 +2,7 @@
 import FactoryIcon from "./FactoryIcon.vue";
 import { ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
-import { House, Building2, LogOut, UserRound } from "@lucide/vue";
+import { House, Building2, Boxes, Package, LogOut, UserRound } from "@lucide/vue";
 import { auth, logout } from "../lib/auth";
 import { errorMessage } from "../lib/api";
 const route = useRoute(),
@@ -33,8 +33,10 @@ async function signOut() {
         <RouterLink to="/" exact-active-class="selected"><House :size="20" aria-hidden="true" />Visão geral</RouterLink>
         <RouterLink to="/empresas" active-class="selected"><Building2 :size="20" aria-hidden="true" />Empresas e
           unidades</RouterLink>
+        <RouterLink to="/estrutura" active-class="selected"><Boxes :size="20" aria-hidden="true" />Fábricas e depósitos</RouterLink>
+        <RouterLink to="/catalogo" active-class="selected"><Package :size="20" aria-hidden="true" />Catálogo e identificadores</RouterLink>
       </nav>
-      <div class="sidebar-footer">Fase 0 · Fundação</div>
+      <div class="sidebar-footer">Fase 1 · Catálogo</div>
     </aside>
     <div class="workspace">
       <header class="topbar">

@@ -2,7 +2,7 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "factorycontrol/api",
     "type": "project",
-    "description": "API FactoryControl PRO \u2014 Fase 0",
+    "description": "API FactoryControl PRO — fundação, estrutura e catálogo",
     "keywords": [
         "laravel",
         "framework"
@@ -10,9 +10,13 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "ext-bcmath": "*",
+        "ext-gd": "*",
+        "dompdf/dompdf": "^3.1",
         "laravel/framework": "^13.17",
-        "laravel/tinker": "^3.0",
         "laravel/sanctum": "^4.0",
+        "laravel/tinker": "^3.0",
+        "picqer/php-barcode-generator": "^3.0",
         "predis/predis": "^3.0"
     },
     "require-dev": {
