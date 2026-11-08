@@ -169,12 +169,16 @@ onBeforeUnmount(() => {
         v-model="query"
         maxlength="100"
         placeholder="Nome ou identificador"
-      ></label><label v-if="!companyMode">Estado<select v-model="active">
+      ></label><label v-if="!companyMode">Estado do cadastro<select v-model="active">
         <option value="">Todos</option>
         <option value="1">Ativos</option>
         <option value="0">Inativos</option>
       </select></label><button :disabled="busy">Buscar</button>
     </form>
+    <p v-if="!companyMode" class="field-help">
+      O filtro considera o estado próprio do cadastro. A disponibilidade também
+      depende dos cadastros superiores.
+    </p>
     <details v-if="filteredCatalog" class="catalog-filter-details">
       <summary>Filtros avançados</summary>
       <div class="catalog-filters">
@@ -223,14 +227,13 @@ onBeforeUnmount(() => {
       <article v-for="row in rows" :key="row.public_id" class="catalog-record">
         <div class="record-main">
           <h3>{{ row.name || row.trade_name }}</h3>
-          <span
-            class="state-tag"
-            :class="{ inactive: row.effective_active === false || !row.active }"
-          >{{
-            row.effective_active === false || !row.active
-              ? "Inativo / indisponível"
-              : "Ativo"
+          <span class="state-tag" :class="{ inactive: !row.active }">{{
+            row.active ? "Ativo" : "Inativo"
           }}</span>
+          <span
+            v-if="row.active && row.effective_active === false"
+            class="state-tag inactive"
+          >Indisponível por dependência</span>
           <p v-if="row.is_demo" class="demo-note">Demonstração fictícia</p>
           <p v-if="row.legal_name">{{ row.legal_name }}</p>
           <p v-if="row.sku">

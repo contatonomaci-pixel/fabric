@@ -12,6 +12,8 @@ use Illuminate\Validation\ValidationException;
 
 class CatalogService
 {
+    private const MAX_FAMILY_LEVELS = 20;
+
     public function __construct(private CodeAllocator $codes) {}
 
     public function find(Company $company, string $resource, string $id, bool $lock = false): ScopedRecord
@@ -27,6 +29,9 @@ class CatalogService
         Gate::forUser($user)->authorize('catalog.view', [$company, $resource]);
         $class = CatalogDefinition::MODELS[$resource];
         $query = $class::where('company_id', $company->id);
+        if ($resource === 'product-variants') {
+            $query->withExists(['skus' => fn ($q) => $q->where('company_id', $company->id)]);
+        }
         if (isset($filters['active'])) {
             $query->where('active', $filters['active']);
         }
@@ -85,7 +90,7 @@ class CatalogService
 
     private function prime(Company $company, string $resource, Collection $records, int $depth = 0): void
     {
-        if ($depth > 20 || $records->isEmpty()) {
+        if ($depth > self::MAX_FAMILY_LEVELS + 2 || $records->isEmpty()) {
             return;
         }
         foreach (CatalogDefinition::REFERENCES[$resource] ?? [] as $field => $class) {
@@ -107,14 +112,18 @@ class CatalogService
         return $record->relationLoaded($field) ? $record->getRelation($field) : $class::where('company_id', $record->company_id)->whereKey($record->getAttribute($field))->first();
     }
 
-    public function available(string $resource, ScopedRecord $record, int $depth = 0): bool
+    public function available(string $resource, ScopedRecord $record, array $visited = []): bool
     {
-        if (! $record->active || $depth > 20) {
+        if (! $record->active || isset($visited[$resource][$record->id])) {
+            return false;
+        }
+        $visited[$resource][$record->id] = true;
+        if (count($visited['product-families'] ?? []) > self::MAX_FAMILY_LEVELS) {
             return false;
         }
         foreach (CatalogDefinition::REFERENCES[$resource] ?? [] as $field => $class) {
             $parent = $this->parent($record, $field, $class);
-            if ($record->getAttribute($field) && (! $parent || ! $this->available(array_search($class, CatalogDefinition::MODELS, true), $parent, $depth + 1))) {
+            if ($record->getAttribute($field) && (! $parent || ! $this->available(array_search($class, CatalogDefinition::MODELS, true), $parent, $visited))) {
                 return false;
             }
         }
@@ -132,6 +141,7 @@ class CatalogService
         }
         if ($resource === 'product-variants') {
             $data['attributes'] = (object) ($record->getAttribute('attributes') ?? []);
+            $data['identity_locked'] = (bool) ($record->getAttribute('skus_exists') ?? CommercialSku::where('company_id', $record->company_id)->where('variant_id', $record->id)->exists());
         }
         if ($resource === 'commercial-skus') {
             $barcode = $record->relationLoaded('internal_barcode') ? $record->getRelation('internal_barcode') : ProductBarcode::where('company_id', $record->company_id)->where('sku_id', $record->id)->first();
@@ -214,12 +224,24 @@ class CatalogService
         if ($resource === 'product-families') {
             $parentId = $record->parent_id;
             $visited = $record->exists ? [$record->id] : [];
+            $levels = 1;
             while ($parentId) {
-                if (in_array($parentId, $visited, true) || count($visited) >= 20) {
+                if (in_array($parentId, $visited, true) || ++$levels > self::MAX_FAMILY_LEVELS) {
                     throw ValidationException::withMessages(['parent_id' => 'A hierarquia não pode conter ciclos nem exceder 20 níveis.']);
                 }
                 $visited[] = $parentId;
                 $parentId = ProductFamily::where('company_id', $company->id)->whereKey($parentId)->value('parent_id');
+            }
+            if ($record->exists && $record->isDirty('parent_id')) {
+                $frontier = [$record->id];
+                $descendants = [$record->id];
+                while ($frontier) {
+                    $frontier = ProductFamily::where('company_id', $company->id)->whereIn('parent_id', $frontier)->pluck('id')->all();
+                    if ($frontier && (++$levels > self::MAX_FAMILY_LEVELS || array_intersect($descendants, $frontier))) {
+                        throw ValidationException::withMessages(['parent_id' => 'A hierarquia não pode conter ciclos nem exceder 20 níveis, incluindo as famílias descendentes.']);
+                    }
+                    $descendants = [...$descendants, ...$frontier];
+                }
             }
         }
         if ($resource === 'product-variants') {

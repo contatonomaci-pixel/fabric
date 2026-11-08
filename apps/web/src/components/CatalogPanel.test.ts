@@ -62,4 +62,47 @@ describe("Consulta do catálogo por empresa", () => {
     expect(actions).not.toContain("Desativar");
     expect(actions).not.toContain("Novo cadastro");
   });
+  it("distingue cadastro ativo de indisponibilidade por dependência no filtro", async () => {
+    const result = response("Dependente FICTÍCIO");
+    vi.mocked(api.get).mockResolvedValue({
+      ...result,
+      data: {
+        ...result.data,
+        data: [
+          {
+            public_id: "dependent",
+            name: "Dependente FICTÍCIO",
+            active: true,
+            effective_active: false,
+          },
+        ],
+      },
+    });
+    const wrapper = mount(CatalogPanel, {
+      props: {
+        endpoint: "/companies/A/units",
+        scope: "/companies/A",
+        resource: "units",
+        title: "Unidades",
+        fields: [],
+      },
+    });
+    await flushPromises();
+    await wrapper.get("select").setValue("1");
+    await wrapper.get('form[role="search"]').trigger("submit");
+    await flushPromises();
+    expect(api.get).toHaveBeenLastCalledWith(
+      "/companies/A/units",
+      expect.objectContaining({
+        params: expect.objectContaining({ active: "1" }),
+      }),
+    );
+    expect(wrapper.findAll(".state-tag").map((tag) => tag.text())).toEqual([
+      "Ativo",
+      "Indisponível por dependência",
+    ]);
+    expect(wrapper.text()).toContain(
+      "O filtro considera o estado próprio do cadastro.",
+    );
+  });
 });

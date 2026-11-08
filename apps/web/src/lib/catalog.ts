@@ -13,12 +13,13 @@ export interface CatalogRow {
   name: string;
   active: boolean;
   effective_active?: boolean;
+  identity_locked?: boolean;
   permissions?: string[];
   is_demo?: boolean;
   sku?: string;
   price?: string | null;
   barcode?: { code: string; kind: string } | null;
-  attributes?: Record<string, string>;
+  attributes?: Record<string, string | null>;
   [key: string]: unknown;
 }
 export interface Field {
@@ -31,6 +32,7 @@ export interface Field {
   resource?: string;
   default?: string | boolean;
   lockedOnEdit?: boolean;
+  lockedWhenUsed?: boolean;
 }
 export interface CatalogDefinition {
   resource: string;
@@ -86,20 +88,20 @@ export const catalogDefinitions: CatalogDefinition[] = [
     title: "Variantes",
     fields: [
       name,
-      lookup("product_id", "Produto", "products", true),
-      { key: "flavor", label: "Sabor", lockedOnEdit: true },
+      { ...lookup("product_id", "Produto", "products"), lockedWhenUsed: true },
+      { key: "flavor", label: "Sabor", lockedWhenUsed: true },
       {
         key: "nominal_unit_weight_g",
         label: "Peso nominal da unidade (g)",
         type: "decimal",
-        lockedOnEdit: true,
+        lockedWhenUsed: true,
         help: "Referência de cadastro; não substitui pesagem real.",
       },
       {
         key: "attributes",
         label: "Características",
         type: "attributes",
-        lockedOnEdit: true,
+        lockedWhenUsed: true,
       },
       active,
     ],

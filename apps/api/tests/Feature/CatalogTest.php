@@ -260,4 +260,55 @@ class CatalogTest extends TestCase
         $this->expectException(AuthorizationException::class);
         app(CatalogService::class)->save($this->owner, $this->company, 'product-families', ['name' => 'Não gravar após desativação']);
     }
+
+    public function test_twenty_family_levels_keep_products_variants_and_skus_available(): void
+    {
+        $service = app(CatalogService::class);
+        $parent = null;
+        $root = null;
+        for ($level = 1; $level <= 20; $level++) {
+            $parent = $service->save($this->owner, $this->company, 'product-families', ['name' => 'Nível FICTÍCIO '.$level, 'parent_id' => $parent?->public_id]);
+            $root ??= $parent;
+        }
+        $this->postJson($this->base.'/product-families', ['name' => 'Nível excedido', 'parent_id' => $parent->public_id])->assertUnprocessable();
+        $product = $this->postJson($this->base.'/products', ['name' => 'Produto profundo FICTÍCIO', 'family_id' => $parent->public_id, 'type' => 'finished'])->assertCreated()->assertJsonPath('data.effective_active', true)->json('data.public_id');
+        $variant = $this->postJson($this->base.'/product-variants', ['name' => 'Variante profunda FICTÍCIA', 'product_id' => $product])->assertCreated()->assertJsonPath('data.effective_active', true)->json('data.public_id');
+        $sku = $this->postJson($this->base.'/commercial-skus', $this->skuInput(['variant_id' => $variant]))->assertCreated()->assertJsonPath('data.effective_active', true)->json('data.public_id');
+        $this->getJson($this->base.'/commercial-skus?q=SKU%20de%20teste')->assertOk()->assertJsonPath('data.0.effective_active', true);
+        $this->patchJson($this->base.'/product-families/'.$root->public_id, ['active' => false])->assertOk();
+        $this->getJson($this->base.'/commercial-skus/'.$sku)->assertOk()->assertJsonPath('data.effective_active', false);
+        $this->patchJson($this->base.'/product-families/'.$root->public_id, ['active' => true])->assertOk();
+        $this->getJson($this->base.'/commercial-skus/'.$sku)->assertOk()->assertJsonPath('data.effective_active', true);
+        // Corrupção simulada fora da API: a leitura também deve encerrar em ciclos.
+        ProductFamily::whereKey($root->id)->update(['parent_id' => $parent->id]);
+        $this->assertFalse($service->available('product-families', $root->fresh()));
+    }
+
+    public function test_reparenting_counts_descendants_before_accepting_twenty_levels(): void
+    {
+        $service = app(CatalogService::class);
+        $parents = [];
+        for ($level = 0; $level < 18; $level++) {
+            $parents[] = $service->save($this->owner, $this->company, 'product-families', ['name' => 'Tronco FICTÍCIO '.$level, 'parent_id' => $level ? $parents[$level - 1]->public_id : null]);
+        }
+        $branch = $service->save($this->owner, $this->company, 'product-families', ['name' => 'Ramo FICTÍCIO']);
+        $child = $service->save($this->owner, $this->company, 'product-families', ['name' => 'Filho FICTÍCIO', 'parent_id' => $branch->public_id]);
+        $leaf = $service->save($this->owner, $this->company, 'product-families', ['name' => 'Folha FICTÍCIA', 'parent_id' => $child->public_id]);
+        $this->patchJson($this->base.'/product-families/'.$branch->public_id, ['parent_id' => $parents[17]->public_id])->assertUnprocessable()->assertJsonValidationErrors('parent_id');
+        $this->assertNull($branch->fresh()->parent_id);
+        $this->patchJson($this->base.'/product-families/'.$branch->public_id, ['parent_id' => $parents[16]->public_id])->assertOk();
+        $this->getJson($this->base.'/product-families/'.$leaf->public_id)->assertOk()->assertJsonPath('data.effective_active', true);
+    }
+
+    public function test_variant_reports_identity_lock_only_after_first_sku_including_inactive(): void
+    {
+        $variant = $this->postJson($this->base.'/product-variants', ['name' => 'Sem SKU FICTÍCIA', 'product_id' => Product::first()->public_id, 'flavor' => 'Frango', 'nominal_unit_weight_g' => '30'])->assertCreated()->assertJsonPath('data.identity_locked', false)->json('data.public_id');
+        $this->patchJson($this->base.'/product-variants/'.$variant, ['flavor' => 'Carne', 'nominal_unit_weight_g' => '35', 'attributes' => ['Formato' => 'Fictício']])->assertOk()->assertJsonPath('data.flavor', 'Carne')->assertJsonPath('data.identity_locked', false);
+        $sku = $this->postJson($this->base.'/commercial-skus', $this->skuInput(['variant_id' => $variant]))->assertCreated()->json('data.public_id');
+        $this->patchJson($this->base.'/commercial-skus/'.$sku, ['active' => false])->assertOk();
+        $this->getJson($this->base.'/product-variants/'.$variant)->assertOk()->assertJsonPath('data.identity_locked', true);
+        $this->getJson($this->base.'/product-variants?q=Sem%20SKU')->assertOk()->assertJsonPath('data.0.identity_locked', true);
+        $this->patchJson($this->base.'/product-variants/'.$variant, ['flavor' => 'Outro'])->assertUnprocessable();
+        $this->patchJson($this->base.'/product-variants/'.$variant, ['name' => 'Nome corrigido FICTÍCIO'])->assertOk()->assertJsonPath('data.identity_locked', true);
+    }
 }

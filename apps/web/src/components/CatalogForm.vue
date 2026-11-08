@@ -19,12 +19,29 @@ const id = useId(),
 const attributes = ref<{ key: string; value: string }[]>(
   Object.entries(props.item?.attributes || {}).map(([key, value]) => ({
     key,
-    value,
+    value: value ?? "",
   })),
 );
 for (const field of props.fields)
   form[field.key] = (props.item?.[field.key] ?? field.default ?? "") as
     string | boolean;
+const locked = (field: Field) =>
+  !!props.item &&
+  (field.lockedOnEdit ||
+    (field.lockedWhenUsed && props.item.identity_locked !== false));
+function fieldValue(field: Field): unknown {
+  if (field.type === "attributes")
+    return Object.fromEntries(
+      attributes.value.map(({ key, value }) => [key.trim(), value.trim()]),
+    );
+  if (field.type === "checkbox") return Boolean(form[field.key]);
+  let value = String(form[field.key] ?? "").trim();
+  if (field.type === "decimal") value = value.replace(",", ".");
+  return value || null;
+}
+const initialValues = Object.fromEntries(
+  props.fields.map((field) => [field.key, fieldValue(field)]),
+);
 let alive = true;
 onBeforeUnmount(() => {
   alive = false;
@@ -36,23 +53,20 @@ async function save() {
   const payload: Record<string, unknown> = {};
   try {
     for (const field of props.fields) {
-      if (props.item && field.lockedOnEdit) continue;
+      if (locked(field)) continue;
       if (field.type === "attributes") {
         if (
           new Set(attributes.value.map((a) => a.key.trim())).size !==
           attributes.value.length
         )
           throw new Error("attribute_duplicate");
-        payload[field.key] = Object.fromEntries(
-          attributes.value.map(({ key, value }) => [key.trim(), value.trim()]),
-        );
-      } else if (field.type === "checkbox")
-        payload[field.key] = Boolean(form[field.key]);
-      else {
-        let value = String(form[field.key] ?? "").trim();
-        if (field.type === "decimal") value = value.replace(",", ".");
-        payload[field.key] = value || null;
       }
+      const value = fieldValue(field);
+      if (
+        !props.item ||
+        JSON.stringify(value) !== JSON.stringify(initialValues[field.key])
+      )
+        payload[field.key] = value;
     }
     const endpoint = props.item
       ? `${props.endpoint}/${props.item.public_id}`
@@ -83,6 +97,14 @@ async function save() {
       Identificadores e apresentações reservados são preservados. Para outra
       apresentação, crie um novo SKU.
     </p>
+    <p v-if="item?.identity_locked === false" class="field-help">
+      Esta variante ainda não possui SKU. Suas características podem ser
+      corrigidas.
+    </p>
+    <p v-else-if="item?.identity_locked === true" class="field-help">
+      Esta variante já possui SKU. Para mudar suas características, crie outra
+      variante.
+    </p>
     <div class="catalog-form-grid">
       <div
         v-for="field in fields"
@@ -95,12 +117,12 @@ async function save() {
           :endpoint="`${scope}/${field.resource}`"
           :label="field.label"
           :required="field.required"
-          :disabled="busy || (!!item && field.lockedOnEdit)"
+          :disabled="busy || locked(field)"
           @update:model-value="form[field.key] = $event"
         />
         <fieldset
           v-else-if="field.type === 'attributes'"
-          :disabled="busy || (!!item && field.lockedOnEdit)"
+          :disabled="busy || locked(field)"
         >
           <legend>{{ field.label }}</legend>
           <div
@@ -134,7 +156,7 @@ async function save() {
         <label v-else-if="field.type === 'checkbox'" class="checkbox-field"><input
           v-model="form[field.key]"
           type="checkbox"
-          :disabled="busy || (!!item && field.lockedOnEdit)"
+          :disabled="busy || locked(field)"
         >{{ field.label }}</label>
         <template v-else>
           <label :for="`${id}-${field.key}`">{{ field.label }}</label>
@@ -143,7 +165,7 @@ async function save() {
             :id="`${id}-${field.key}`"
             v-model="form[field.key]"
             :required="field.required"
-            :disabled="busy || (!!item && field.lockedOnEdit)"
+            :disabled="busy || locked(field)"
           >
             <option
               v-for="option in field.options"
@@ -159,7 +181,7 @@ async function save() {
             v-model="form[field.key]"
             :inputmode="field.type === 'decimal' ? 'decimal' : 'text'"
             :required="field.required"
-            :disabled="busy || (!!item && field.lockedOnEdit)"
+            :disabled="busy || locked(field)"
             :maxlength="field.type === 'decimal' ? 24 : 200"
           >
         </template>

@@ -125,7 +125,7 @@ test("SKU, preço, histórico, Code128 e reserva após desativação", async ({
   }
   page.once("dialog", (dialog) => dialog.accept());
   await row.getByRole("button", { name: "Desativar", exact: true }).click();
-  await expect(row).toContainText("Inativo / indisponível");
+  await expect(row.locator(".state-tag")).toHaveText("Inativo");
   await expect(row.locator(".record-main strong")).toHaveText(originalSku);
   await page
     .getByRole("button", { name: "Novo cadastro", exact: true })
@@ -255,7 +255,104 @@ test("empresa, fábrica, depósito, família, produto e variante ficam no contex
       exact: true,
     }),
   ).toBeVisible();
+  const variantRow = page
+    .locator(".catalog-record")
+    .filter({
+      has: page.getByRole("heading", {
+        name: "Variante QA 30g FICTÍCIA",
+        exact: true,
+      }),
+    });
+  await variantRow.getByRole("button", { name: "Editar", exact: true }).click();
+  await expect(form.getByLabel("Sabor", { exact: true })).toBeEnabled();
+  await form
+    .getByLabel("Sabor", { exact: true })
+    .fill("Sabor corrigido FICTÍCIO");
+  await form
+    .getByLabel("Peso nominal da unidade (g)", { exact: true })
+    .fill("35");
+  await form.getByLabel("Valor 1", { exact: true }).fill("Corrigido FICTÍCIO");
+  await saved(page);
   await page.getByRole("button", { name: "SKUs", exact: true }).click();
+  await expect(
+    page.getByText("Nenhum cadastro encontrado.", { exact: false }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Novo cadastro", exact: true })
+    .click();
+  await form.getByLabel("Nome", { exact: true }).fill("SKU regressão FICTÍCIO");
+  await expect(form.getByLabel("Variante", { exact: true })).toBeEnabled();
+  await form
+    .getByLabel("Variante", { exact: true })
+    .selectOption({ label: "Variante QA 30g FICTÍCIA" });
+  await expect(
+    form.getByLabel("Unidade de venda", { exact: true }),
+  ).toBeEnabled();
+  await form
+    .getByLabel("Unidade de venda", { exact: true })
+    .selectOption({ label: "Unidade" });
+  await saved(page);
+  await page.getByRole("button", { name: "Variantes", exact: true }).click();
+  await variantRow.getByRole("button", { name: "Editar", exact: true }).click();
+  await expect(form.getByLabel("Sabor", { exact: true })).toBeDisabled();
+  await expect(form.getByLabel("Sabor", { exact: true })).toHaveValue(
+    "Sabor corrigido FICTÍCIO",
+  );
+  await expect(
+    form.getByLabel("Peso nominal da unidade (g)", { exact: true }),
+  ).toHaveValue("35.000000");
+  await expect(form.getByLabel("Valor 1", { exact: true })).toHaveValue(
+    "Corrigido FICTÍCIO",
+  );
+  await form
+    .getByLabel("Nome", { exact: true })
+    .fill("Variante revisada FICTÍCIA");
+  await saved(page);
+  await page.getByRole("button", { name: "Produtos", exact: true }).click();
+  page.once("dialog", (dialog) => dialog.accept());
+  await page
+    .locator(".catalog-record")
+    .filter({
+      has: page.getByRole("heading", {
+        name: "Produto QA FICTÍCIO",
+        exact: true,
+      }),
+    })
+    .getByRole("button", { name: "Desativar", exact: true })
+    .click();
+  await expect(page.locator(".catalog-record .state-tag")).toHaveText(
+    "Inativo",
+  );
+  await page.getByRole("button", { name: "SKUs", exact: true }).click();
+  await page
+    .getByRole("combobox", { name: "Estado do cadastro", exact: true })
+    .selectOption("1");
+  await page.getByRole("button", { name: "Buscar", exact: true }).click();
+  const dependent = page
+    .locator(".catalog-record")
+    .filter({
+      has: page.getByRole("heading", {
+        name: "SKU regressão FICTÍCIO",
+        exact: true,
+      }),
+    });
+  await expect(dependent.locator(".state-tag")).toHaveText([
+    "Ativo",
+    "Indisponível por dependência",
+  ]);
+  if (process.env.QA_SCREENSHOT_DIR) {
+    await dependent.scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: join(
+        process.env.QA_SCREENSHOT_DIR,
+        `dependency-${info.project.name}.png`,
+      ),
+    });
+  }
+  await page
+    .getByRole("combobox", { name: "Estado do cadastro", exact: true })
+    .selectOption("0");
+  await page.getByRole("button", { name: "Buscar", exact: true }).click();
   await expect(
     page.getByText("Nenhum cadastro encontrado.", { exact: false }),
   ).toBeVisible();

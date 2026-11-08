@@ -5966,13 +5966,19 @@
           "product_id_label": {
             "type": "string",
             "nullable": true
+          },
+          "identity_locked": {
+            "type": "boolean",
+            "readOnly": true,
+            "description": "Verdadeiro após a criação do primeiro SKU, inclusive inativo. Características permanecem editáveis antes disso; o servidor sempre valida a alteração."
           }
         },
         "required": [
           "public_id",
           "name",
           "active",
-          "effective_active"
+          "effective_active",
+          "identity_locked"
         ]
       },
       "CommercialSkuCreate": {
