@@ -384,3 +384,9 @@ A matriz detalhada contém **35 verificações com exit 0**, `success=true`, `te
 - Conferência final de portabilidade do runner: normalizados os separadores de caminhos na proteção do SQLite temporário, mantendo o confinamento ao diretório de E2E. Isso não comprova execução Windows; o runtime nativo continua pendente de homologação.
 - VM local desligada após a remoção dos containers/volumes de teste. MySQL preexistente **PID 950**, porta **3306**, confirmado ativo. A main permanece na entrega da Fase 0; esta fase fica disponível para revisão na branch/PR, sem integração automática.
 - Próximos passos: revisar/integrar o PR da Fase 1 e, depois, liberar explicitamente a Fase 2 se desejado. Nenhum módulo futuro foi iniciado.
+
+### 2026-11-08 — Conferência final da Fase 1
+
+- O ajuste de portabilidade do runner foi publicado no commit [`9cd528d91825dfa77f0fa9ba10e0bec38c2c625a`](https://github.com/contatonomaci-pixel/fabric/commit/9cd528d91825dfa77f0fa9ba10e0bec38c2c625a). [CI do PR 42389603780](https://github.com/contatonomaci-pixel/fabric/actions/runs/42389603780) e [CI de push 42389599246](https://github.com/contatonomaci-pixel/fabric/actions/runs/42389599246) concluídas com sucesso; os quatro jobs finais foram conferidos: API PHP 8.3, API PHP 8.5, web e E2E.
+- Reexecutados `python3 scripts/validar-pacote.py` (11 documentos essenciais presentes), `git diff --check` da entrega e SHA-256 do Compose; todos aprovados. Nenhuma mudança funcional adicional neste fechamento documental.
+- Evidências finais da API do GitHub: `/private/tmp/factorycontrol-phase1-final-runs.json` e `/private/tmp/factorycontrol-phase1-final-ci-jobs.json`. PR #1 permanece em rascunho para revisão; main preservada na Fase 0. Sem deploy e sem autorização para a Fase 2.
