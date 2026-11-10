@@ -2,6 +2,8 @@
 
 namespace App\Domain\Catalog;
 
+use App\Domain\Inventory\InventoryLot;
+use App\Domain\Inventory\Location;
 use App\Models\Company;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
@@ -31,6 +33,7 @@ class CatalogService
         $query = $class::where('company_id', $company->id);
         if ($resource === 'product-variants') {
             $query->withExists(['skus' => fn ($q) => $q->where('company_id', $company->id)]);
+            $query->withExists(['inventoryLots' => fn ($q) => $q->where('company_id', $company->id)]);
         }
         if (isset($filters['active'])) {
             $query->where('active', $filters['active']);
@@ -142,6 +145,7 @@ class CatalogService
         if ($resource === 'product-variants') {
             $data['attributes'] = (object) ($record->getAttribute('attributes') ?? []);
             $data['identity_locked'] = (bool) ($record->getAttribute('skus_exists') ?? CommercialSku::where('company_id', $record->company_id)->where('variant_id', $record->id)->exists());
+            $data['identity_locked'] = $data['identity_locked'] || (bool) ($record->getAttribute('inventory_lots_exists') ?? InventoryLot::where('company_id', $record->company_id)->where('variant_id', $record->id)->exists());
         }
         if ($resource === 'commercial-skus') {
             $barcode = $record->relationLoaded('internal_barcode') ? $record->getRelation('internal_barcode') : ProductBarcode::where('company_id', $record->company_id)->where('sku_id', $record->id)->first();
@@ -209,6 +213,9 @@ class CatalogService
 
     private function validateDomain(Company $company, string $resource, ScopedRecord $record): void
     {
+        if ($resource === 'warehouses' && $record->exists && $record->isDirty('factory_id') && Location::where('company_id', $company->id)->where('warehouse_id', $record->id)->exists()) {
+            throw ValidationException::withMessages(['factory_id' => 'Depósito já possui locais. A fábrica deve ser preservada; crie outro depósito.']);
+        }
         if ($resource === 'units') {
             $expected = ['g' => ['mass', '1'], 'KG' => ['mass', '1000'], 'UN' => ['count', '1'], 'PCT' => ['package', null], 'CX' => ['package', null]];
             if (isset($expected[$record->code]) && ($record->dimension !== $expected[$record->code][0] || ($expected[$record->code][1] !== null && bccomp($record->ratio_to_base ?? '0', $expected[$record->code][1], 6) !== 0))) {
@@ -250,8 +257,8 @@ class CatalogService
                     throw ValidationException::withMessages(['attributes' => 'Use nomes de atributos com até 40 caracteres, iniciados por letra.']);
                 }
             }
-            if ($record->exists && $record->isDirty(['product_id', 'flavor', 'nominal_unit_weight_g', 'attributes']) && CommercialSku::where('company_id', $company->id)->where('variant_id', $record->id)->exists()) {
-                throw ValidationException::withMessages(['name' => 'Esta variante já possui SKUs. Para mudar sabor, peso ou características, crie outra variante.']);
+            if ($record->exists && $record->isDirty(['product_id', 'flavor', 'nominal_unit_weight_g', 'attributes']) && (CommercialSku::where('company_id', $company->id)->where('variant_id', $record->id)->exists() || InventoryLot::where('company_id', $company->id)->where('variant_id', $record->id)->exists())) {
+                throw ValidationException::withMessages(['name' => 'Esta variante já possui SKUs ou lotes. Para mudar sabor, peso ou características, crie outra variante.']);
             }
         }
         if ($resource === 'commercial-skus') {

@@ -8,6 +8,7 @@ const props = defineProps<{
   label: string;
   required?: boolean;
   disabled?: boolean;
+  filters?: Record<string, string | number>;
 }>();
 const emit = defineEmits<{ "update:modelValue": [value: string] }>();
 const id = useId(),
@@ -24,7 +25,7 @@ async function load() {
   error.value = "";
   try {
     const { data } = await api.get(endpoint, {
-      params: { q: query.value || undefined, per_page: 20, active: 1 },
+      params: { q: query.value || undefined, per_page: 20, active: 1, ...props.filters },
     });
     if (version !== generation) return;
     let options = data.data as CatalogRow[];

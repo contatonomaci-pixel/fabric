@@ -1,11 +1,11 @@
 # FactoryControl PRO — Projeto mestre para desenvolvimento com Codex
 
-**Status:** Fase 1 implementada, homologada localmente e com [CI aprovada](https://github.com/contatonomaci-pixel/fabric/actions/runs/42490900510): empresas/fábricas/depósitos, catálogo, unidades, SKUs, preços auditados e Code128 interno. Integrada à branch `main` pelo [PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1), incluindo as três correções da revisão. Evidências e limites em [STATUS](docs/STATUS.md). **Estoque, produção, financeiro, RCN/GTIN e BI ainda não implementados.**
-**Revisão:** 2026-11-08. **Idioma do produto:** pt-BR; moeda BRL; datas ISO no armazenamento e pt-BR na UI.
+**Status:** Fase 2 implementada e homologada localmente: fornecedores, pedidos/recebimentos, políticas físicas, lotes/locais, FEFO, reservas, movimentos/estornos, contagens e pesagens manuais. Entrega na branch `feat/phase-2-inventory`, em preparação para revisão e CI. Evidências e limites em [STATUS](docs/STATUS.md). Fase 1 integrada à main pelo [PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1). **Produção, vendas, financeiro, RCN/GTIN e BI ainda não implementados.**
+**Revisão:** 2026-11-10. **Idioma do produto:** pt-BR; moeda BRL; datas ISO no armazenamento e pt-BR na UI.
 
 ## Executar a fundação
 
-Consulte [instalação Windows/VS Code e Unix, login fictício e testes](docs/17-executar-localmente.md), [uso e decisões do catálogo da Fase 1](docs/19-catalogo-fase-1.md), [contrato OpenAPI](docs/api/openapi.json) e [evidências/pendências](docs/STATUS.md). O Compose fornecido permanece em `infra/compose.yaml`.
+Consulte [instalação Windows/VS Code e Unix, login fictício e testes](docs/17-executar-localmente.md), [catálogo da Fase 1](docs/19-catalogo-fase-1.md), [compras/estoque da Fase 2](docs/21-compras-estoque-fase-2.md), [contrato OpenAPI](docs/api/openapi.json) e [evidências/pendências](docs/STATUS.md). O Compose fornecido permanece em `infra/compose.yaml`.
 
 ## Visão do produto
 ERP industrial expansível para alimentos, começando com salgados congelados prontos para **aquecer e consumir**, produzidos inicialmente em modeladora Consultomaq Maqturbo 8.5 MAX. Suporta futuramente pizzas, massas, marmitas, panificação, sobremesas, outras máquinas, depósitos e fábricas. Gestão integrada de produtos, produção, qualidade, rastreabilidade, estoque, compras, vendas, expedição, funcionários, finanças, metas e BI.

@@ -1,7 +1,7 @@
 # STATUS — controle de progresso do projeto
 
 **Data de criação:** 2026-11-06.
-**Situação:** Fase 1 autorizada e implementada, com os três achados da revisão corrigidos em 2026-11-08 e [CI da main aprovada](https://github.com/contatonomaci-pixel/fabric/actions/runs/42490900510): **42 testes API/324 assertions em cada PHP (8.3/8.5), 16 SPA e 14 E2E**. Inclui empresas/fábricas/depósitos, catálogo, unidades, SKUs, preços com histórico e Code128 SVG/PNG/PDF. Entrega integrada à `main` pelo [PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1), merge `f35ff65` em 2026-11-08. Fases 2–10 não autorizadas. Windows nativo/Safari/iOS real, homologação física e avisos moderados de desenvolvimento permanecem com os limites registrados.
+**Situação:** Fase 2 implementada e homologada localmente em PHP 8.3/8.5 + MySQL 8.4/Redis: **58 testes API/535 assertions por runtime, 19 SPA e 16 E2E**. Inclui compras/recebimentos, lotes/locais, políticas físicas, FEFO, reservas, baixas/transferências/contagens, estornos e pesagens manuais. Branch `feat/phase-2-inventory`, em preparação para revisão/CI; main permanece na Fase 1 integrada pelo [PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1). Fases 3–10 não autorizadas. Sem deploy; homologação Windows/Safari/iOS/hardware e parâmetros técnicos/fiscais permanecem pendentes.
 
 **Revisão técnica de 2026-11-08:** três achados P2 reproduzidos e corrigidos, com regressões incorporadas e aprovadas localmente e na CI. Limites de família coerentes; características de variante editáveis antes do primeiro SKU; estado próprio e disponibilidade apresentados separadamente. Evidências completas no final deste documento.
 
@@ -9,7 +9,7 @@
 |---|---|---|
 | 0 — Fundação técnica | HOMOLOGADA LOCALMENTE E NA CI | Código publicado; quatro jobs aprovados após corrigir a preservação de tests/Unit em clones |
 | 1 — Catálogo/identificadores | INTEGRADA À MAIN; CI APROVADA | Três achados P2 corrigidos; 42 API por runtime, 16 SPA e 14 E2E; PR #1 integrado, sem deploy |
-| 2 — Compras/estoque | PENDENTE | |
+| 2 — Compras/estoque | HOMOLOGADA LOCALMENTE; REVISÃO/CI EM PREPARAÇÃO | 58 API por runtime, 19 SPA e 16 E2E; sem merge/deploy |
 | 3 — Fabricação/OP | PENDENTE | |
 | 4 — Qualidade/rastreabilidade | PENDENTE | |
 | 5 — Comercial/expedição | PENDENTE | |
@@ -486,3 +486,49 @@ Nenhum achado P0/P1 foi confirmado nesta revisão. Isso não equivale a auditori
 **Limites e próximo passo**
 - Esta continuação altera somente quatro arquivos documentais: `README.md`, `docs/17-executar-localmente.md`, `docs/19-catalogo-fase-1.md` e `docs/STATUS.md`. Sem deploy, migrations em banco existente, alteração de Compose ou início de módulo futuro. Revalidação automática da main acompanhada antes de concluir a entrega.
 - Windows/Safari/iOS real, equipamentos físicos e avisos transitivos de desenvolvimento mantêm os limites anteriores. Próxima fase funcional recomendada: **Fase 2 — fornecedores, compras, recebimento, estoque/lotes, FEFO e pesagens básicas**, somente após autorização específica.
+
+### 2026-11-08 — Início da Fase 2
+
+- Usuário solicitou “continue” após a Fase 1 integrada e a indicação da Fase 2 como próxima etapa. Escopo adotado e anunciado: exclusivamente compras/estoque da tarefa `tasks/02-compras-estoque.md`. Leitura dos documentos obrigatórios e de produtos/unidades, fluxos e permissões concluída. Sem início de produção, vendas ou financeiro.
+- Workspace e checkout isolado estavam limpos na base `c8dc2008e9ebc4e8de48bd66e77aefff999cc4e9`. Criada branch local `feat/phase-2-inventory`; a pasta da IDE permanece sem `.git`.
+- Plano: migrations/modelos de Purchasing/Inventory, serviços transacionais com idempotência e autorização, telas no layout existente, testes de FEFO/precisão/estorno/concorrência e documentação. Riscos prioritários: saldo negativo, dupla baixa/recebimento, lote indisponível e vazamento de custos.
+- Decisões explícitas registradas em `docs/21-compras-estoque-fase-2.md`: políticas físicas por variante, nenhuma massa derivada do nominal, estado inicial/liberação com permissão, estoque append-only e custos segregados. Implementação e validação em andamento; ainda sem afirmação de entrega da Fase 2.
+
+### 2026-11-10 — Entrega local da Fase 2
+
+**Implementação**
+- Módulos `Purchasing`/`Inventory`, migration reversível com 15 tabelas InnoDB/utf8mb4, PK BIGINT/ULID público e FKs compostas por empresa. Fornecedores, locais, política por variante, pedidos/itens imutáveis após emissão, recebimentos parciais com lote/datas/quantidade/custo e consulta paginada por contexto. Código do local/depósito e política usada preservados; variante com lote também bloqueia características mesmo sem SKU.
+- Livro físico append-only e saldos como projeções transacionais por lote/local. Transferência pareada; contagem com fotografia anterior/atual; estorno único compensatório, sem apagar origem. Estorno de recebimento restaura o restante do pedido; estorno de consumo não reabre reserva. Reservas e baixas validam disponibilidade/qualidade/validade dentro da transação. Lock e reautorização da empresa serializam operações nesta fase e impedem saldo/reserva negativos.
+- Idempotência por empresa/chave não nula e hash do comando/payload. Replay retorna o mesmo identificador sem repetir efeitos; conteúdo diferente é rejeitado. Campos físicos/monetários chegam como texto decimal. Pesagem manual bruto/tara/líquido, autor e UTC; registro isolado não altera estoque. Valores em KG vêm de massa real em gramas dividida por 1000, nunca do peso nominal. Políticas UN/massa/dupla não recebem fatores de embalagem globais.
+- FEFO automático somente para lotes liberados/não vencidos, por validade e ID; ausência de validade requer política/justificativa explícita e fica após lotes datados. Política dupla exige posição e duas quantidades declaradas, sem rateio teórico. Consumo confirma cada alocação de massa; limite de 100 alocações por reserva. Estado básico de lote exige concessão própria; não implementa inspeções avançadas/rotulagem da Fase 4.
+- Papéis compras/almoxarifado/qualidade, permissões atomizadas e custos protegidos por `purchasing.costs`. Auditor/almoxarifado não recebem custos por padrão; qualidade não acessa compras/contatos por eventos/operações, inclusive acesso direto. Operador de produção não recebe administração. Sem endpoint cliente para conceder papéis.
+- Telas `/compras` e `/estoque` no layout existente, com empresa de trabalho, seletor compacto de seção, formulários, motivos/confirmações, filtros de variante/depósito/qualidade/validade, paginação e estados de carga/vazio/erro/sucesso. Moeda, números e datas em pt-BR; saldos sem reserva são físicos e não equivalem a liberação de qualidade. Demo acrescenta fornecedor/local fictícios, sem política, saldo, custo ou prazo sanitário inventado.
+- Nenhuma dependência nova, nenhuma alteração do Compose e nenhum módulo de produção, vendas, financeiro, GTIN/RCN ou BI. Guia de uso/decisões em [Compras e estoque](21-compras-estoque-fase-2.md); relação de arquivos em `docs/22-arquivos-fase-2.md`.
+
+**Testes e evidências locais**
+
+| Verificação | Resultado efetivo |
+|---|---|
+| Matriz MySQL 8.4.13 / Redis 7.4.12, PHP 8.3.33 e 8.5.5 | **58 passaram / 535 assertions em cada runtime**, sem skipped; inclui fases anteriores |
+| Concorrência entre dois processos/atores | Disputa por reserva/baixa teve só um vencedor; replay simultâneo da mesma chave teve só um efeito físico |
+| Migration up/down/up | Passou nos dois runtimes em bancos descartáveis; nenhuma tabela de operação real usada |
+| Integridade física/schema | 15 tabelas conferidas InnoDB/utf8mb4, quantidades DECIMAL(18,6); FK rejeitou posição ligando lote/local de empresas diferentes diretamente no banco |
+| SQLite isolado, `composer test` com PHP 8.3 | **50 passaram / 407 assertions; 8 skipped** esperados de infraestrutura/concorrência, não contados como aprovados |
+| Vitest | **19 passaram / 7 arquivos**, incluindo privacidade de custos e retry de comandos/contexto durante CSRF |
+| Web lint, typecheck e build | Passaram; apresentação final usa moeda/datas pt-BR e esconde grandezas não acompanhadas pela política |
+| E2E PHP 8.3 + MySQL/Redis reais | **16 passaram**, 56,9 s, Chromium desktop/mobile |
+| E2E padrão SQLite após ajustes de apresentação | **16 passaram**, 22,4 s; os dois cenários novos foram repetidos após ajuste visual e passaram |
+| Pint, Composer validate e extensões | Passaram na matriz; Composer test local avisou cache pessoal sem permissão e prosseguiu sem cache, exit 0 |
+| SMTP/reset/sessão/worker/readiness | Smoke herdado da fundação passou; Redis desligado retornou 503 e reset usou somente destinatário fictício no Mailpit |
+| OpenAPI | Redocly CLI 2.76.0 minimal: zero erros, dois avisos esperados de localhost; **91 operações/69 caminhos**, 90 rotas v1 conferidas integralmente contra `route:list --json` mais CSRF |
+
+- Matriz final: `/private/tmp/factorycontrol-phase2-verified.json`, **35 verificações com exit 0**, `success=true`, `temporary_services_stopped=true`. Primeira matriz anterior, com 57 testes antes da verificação adicional de FK/schema: `factorycontrol-phase2-matrix.json`. A apresentação pt-BR/seleção de seção foi ajustada depois da matriz; lint/build/unit e E2E foram repetidos para esses ajustes. CI da branch conferirá o snapshot completo publicado.
+- Comando real da matriz: `BARCODE_DECODER=/private/tmp/factorycontrol-phase1-decoder/read-code128 python3 scripts/homologar-fundacao.py --compose --docker /opt/homebrew/opt/docker/bin/docker --docker-host unix:///Users/mauriciosilva/.colima/factorycontrol-phase0/docker.sock --docker-config /private/tmp/factorycontrol-docker-config --php /opt/homebrew/opt/php@8.3/bin/php --php /opt/homebrew/bin/php --result /private/tmp/factorycontrol-phase2-verified.json`.
+- Inicialização local: Colima/Docker não estavam no PATH e o primeiro caminho de Colima não existia. Resolvido usando binários em `/opt/homebrew/opt/{colima,docker}/bin` e PATH somente do processo, sem instalação ou alteração global. Perfil local reutilizado com `--activate=false`. Containers/volumes temporários removidos pelo runner; VM desligada ao concluir. MySQL preexistente PID 950 confirmado ativo por inspeção de processo, sem conexão ao banco. Compose original preservado.
+
+**QA visual e limites**
+- Skill frontend-testing-debugging aplicada ao fluxo login → empresa → política/fornecedor → pedido → recebimento parcial → massa real → reserva/consumo → transferência → contagem/estorno → bloqueio e tentativa de nova reserva. Browser integrado sem ferramenta de execução disponível nesta sessão; mantido Playwright autorizado do projeto.
+- `http://localhost:5173`, Chromium desktop 1487×1058 e mobile 390×844. Página identificada, conteúdo real, sem overlay/erro JavaScript relevante e sem overflow horizontal no fluxo. Primeiro layout comprimia dados na grade e tinha muitas abas no celular; seletor de seção e cards ajustados após inspeção de screenshots, sem mudar regras de negócio. Telas usam apenas as grandezas da política, mostram validade/estado e distinguem quantidade sem reserva de liberação operacional.
+- Capturas fora do repositório: `/private/var/folders/9v/c9y9j1gx7_b9h0y3jvhfww_80000gn/T/factorycontrol-qa/inventory-{desktop,mobile}.png` e capturas focadas `inventory-values-{desktop,mobile}.png`. Evidências temporárias contêm somente dados de teste fictícios.
+- Windows nativo, Safari/iOS real, balança/leitor/impressora físicos e parâmetros sanitários/fiscais continuam sem homologação. Os avisos transitivos de desenvolvimento anteriores não foram forçados/atualizados nesta fase. A Fase 2 não autoriza operação comercial real nem deploy.
+- Próximo passo: preparar PR em rascunho, acompanhar a CI e revisar a Fase 2 antes de qualquer integração. Fase 3 somente após autorização específica.

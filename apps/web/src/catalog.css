@@ -327,3 +327,12 @@ select:focus-visible {
     gap: 6px;
   }
 }
+.inventory-values { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin:12px 0; }
+.inventory-values dt { font-size:.8rem; color:var(--text-muted,#58666e); }
+.inventory-values dd { margin:3px 0; overflow-wrap:anywhere; font-variant-numeric:tabular-nums; }
+.catalog-form fieldset { min-width:0; margin:16px 0; padding:16px; border:1px solid #d5dedb; border-radius:6px; }
+.catalog-form textarea { width:100%; min-height:80px; padding:10px; border:1px solid #b1c3bb; border-radius:4px; font:inherit; box-sizing:border-box; }
+.catalog-record.inventory-record { display:block; }
+.operations-selector { margin:20px 0; max-width:420px; }
+.operations-selector label { display:block; font-size:.85rem; font-weight:600; margin-bottom:6px; }
+.operations-selector select { width:100%; min-height:44px; padding:10px; border:1px solid #b1c3bb; border-radius:4px; font:inherit; background:white; }

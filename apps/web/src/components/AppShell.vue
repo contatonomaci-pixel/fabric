@@ -35,8 +35,10 @@ async function signOut() {
           unidades</RouterLink>
         <RouterLink to="/estrutura" active-class="selected"><Boxes :size="20" aria-hidden="true" />Fábricas e depósitos</RouterLink>
         <RouterLink to="/catalogo" active-class="selected"><Package :size="20" aria-hidden="true" />Catálogo e identificadores</RouterLink>
+        <RouterLink to="/compras" active-class="selected"><Building2 :size="20" aria-hidden="true" />Compras e recebimento</RouterLink>
+        <RouterLink to="/estoque" active-class="selected"><Boxes :size="20" aria-hidden="true" />Estoque e lotes</RouterLink>
       </nav>
-      <div class="sidebar-footer">Fase 1 · Catálogo</div>
+      <div class="sidebar-footer">Fase 2 · Compras e estoque</div>
     </aside>
     <div class="workspace">
       <header class="topbar">

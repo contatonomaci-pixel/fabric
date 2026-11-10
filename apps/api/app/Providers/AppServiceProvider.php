@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Policies\CatalogPolicy;
+use App\Policies\InventoryAccessPolicy;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -16,6 +17,7 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Gate::define('inventory.access', [InventoryAccessPolicy::class, 'access']);
         Gate::define('catalog.view', [CatalogPolicy::class, 'view']);
         Gate::define('catalog.manage', [CatalogPolicy::class, 'manage']);
         RateLimiter::for('login', fn (Request $r) => [Limit::perMinute(20)->by($r->ip()), Limit::perMinute(5)->by(hash('sha256', mb_strtolower(is_string($r->input('email')) ? $r->input('email') : '').'|'.$r->ip()))]);
