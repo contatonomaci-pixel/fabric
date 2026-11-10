@@ -2,6 +2,8 @@
 
 Continuação solicitada após a integração da Fase 1. Escopo: fornecedores, pedidos/recebimentos, lotes/locais, reservas/baixas, transferências, contagens, estornos, FEFO e pesagem manual. Produção, vendas, financeiro e inspeções avançadas permanecem nas fases próprias.
 
+Entrega na branch `feat/phase-2-inventory`, [PR #2 em rascunho](https://github.com/contatonomaci-pixel/fabric/pull/2), com homologação local e CI aprovada. Main permanece na Fase 1 até revisão/integração. Evidências em [STATUS](STATUS.md) e arquivos no [manifesto](22-arquivos-fase-2.md).
+
 ## Decisões de domínio
 
 - Política explícita por variante: contagem em UN, massa em gramas ou ambas, sem conversão pelo peso nominal. Política não pode mudar após o primeiro lote. Exigência de validade é configurada; ausência de validade requer justificativa quando permitida. Não há prazo sanitário calculado.

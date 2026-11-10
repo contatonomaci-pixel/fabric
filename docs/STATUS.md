@@ -1,7 +1,7 @@
 # STATUS — controle de progresso do projeto
 
 **Data de criação:** 2026-11-06.
-**Situação:** Fase 2 implementada e homologada localmente em PHP 8.3/8.5 + MySQL 8.4/Redis: **58 testes API/535 assertions por runtime, 19 SPA e 16 E2E**. Inclui compras/recebimentos, lotes/locais, políticas físicas, FEFO, reservas, baixas/transferências/contagens, estornos e pesagens manuais. Branch `feat/phase-2-inventory`, em preparação para revisão/CI; main permanece na Fase 1 integrada pelo [PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1). Fases 3–10 não autorizadas. Sem deploy; homologação Windows/Safari/iOS/hardware e parâmetros técnicos/fiscais permanecem pendentes.
+**Situação:** Fase 2 implementada e homologada localmente e na CI em PHP 8.3/8.5 + MySQL 8.4/Redis: **58 testes API/535 assertions por runtime, 19 SPA e 16 E2E**. Inclui compras/recebimentos, lotes/locais, políticas físicas, FEFO, reservas, baixas/transferências/contagens, estornos e pesagens manuais. [PR #2 em rascunho](https://github.com/contatonomaci-pixel/fabric/pull/2), branch `feat/phase-2-inventory`, com [quatro jobs da CI aprovados](https://github.com/contatonomaci-pixel/fabric/actions/runs/42844158905); aguarda revisão. Main permanece na Fase 1 integrada pelo [PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1). Fases 3–10 não autorizadas. Sem deploy; homologação Windows/Safari/iOS/hardware e parâmetros técnicos/fiscais permanecem pendentes.
 
 **Revisão técnica de 2026-11-08:** três achados P2 reproduzidos e corrigidos, com regressões incorporadas e aprovadas localmente e na CI. Limites de família coerentes; características de variante editáveis antes do primeiro SKU; estado próprio e disponibilidade apresentados separadamente. Evidências completas no final deste documento.
 
@@ -9,7 +9,7 @@
 |---|---|---|
 | 0 — Fundação técnica | HOMOLOGADA LOCALMENTE E NA CI | Código publicado; quatro jobs aprovados após corrigir a preservação de tests/Unit em clones |
 | 1 — Catálogo/identificadores | INTEGRADA À MAIN; CI APROVADA | Três achados P2 corrigidos; 42 API por runtime, 16 SPA e 14 E2E; PR #1 integrado, sem deploy |
-| 2 — Compras/estoque | HOMOLOGADA LOCALMENTE; REVISÃO/CI EM PREPARAÇÃO | 58 API por runtime, 19 SPA e 16 E2E; sem merge/deploy |
+| 2 — Compras/estoque | HOMOLOGADA LOCALMENTE E NA CI; PR #2 EM RASCUNHO | 58 API/535 assertions por runtime, 19 SPA e 16 E2E; aguarda revisão, sem merge/deploy |
 | 3 — Fabricação/OP | PENDENTE | |
 | 4 — Qualidade/rastreabilidade | PENDENTE | |
 | 5 — Comercial/expedição | PENDENTE | |
@@ -532,3 +532,21 @@ Nenhum achado P0/P1 foi confirmado nesta revisão. Isso não equivale a auditori
 - Capturas fora do repositório: `/private/var/folders/9v/c9y9j1gx7_b9h0y3jvhfww_80000gn/T/factorycontrol-qa/inventory-{desktop,mobile}.png` e capturas focadas `inventory-values-{desktop,mobile}.png`. Evidências temporárias contêm somente dados de teste fictícios.
 - Windows nativo, Safari/iOS real, balança/leitor/impressora físicos e parâmetros sanitários/fiscais continuam sem homologação. Os avisos transitivos de desenvolvimento anteriores não foram forçados/atualizados nesta fase. A Fase 2 não autoriza operação comercial real nem deploy.
 - Próximo passo: preparar PR em rascunho, acompanhar a CI e revisar a Fase 2 antes de qualquer integração. Fase 3 somente após autorização específica.
+
+
+### 2026-11-10 — Publicação e CI da Fase 2
+
+- Entrega publicada no commit [`4c9960792a202f36cd0ad3624e9844c08caa382d`](https://github.com/contatonomaci-pixel/fabric/commit/4c9960792a202f36cd0ad3624e9844c08caa382d), branch `feat/phase-2-inventory`. [PR #2](https://github.com/contatonomaci-pixel/fabric/pull/2) aberto em **rascunho**, base `main`. Nenhum merge, deploy, force-push ou mudança de configuração remota.
+- [CI da branch 42842848944](https://github.com/contatonomaci-pixel/fabric/actions/runs/42842848944) e [CI do PR 42844158905](https://github.com/contatonomaci-pixel/fabric/actions/runs/42844158905) concluídas com **success**, quatro jobs cada, no mesmo SHA. Contagens conferidas nos logs da branch:
+
+| Job remoto | Resultado |
+|---|---|
+| API PHP 8.3 | **58 passaram / 535 assertions**, sem skipped; MySQL 8.4/Redis, concorrência, migration up/down/up e leitura independente de Code128 com ZBar |
+| API PHP 8.5 | **58 passaram / 535 assertions**, sem skipped; mesma matriz |
+| Web | **19 passaram / 7 arquivos**, lint/typecheck/build aprovados |
+| E2E PHP 8.3 | **16 passaram**, 31,7 s; Chromium desktop/mobile e SQLite descartável. E2E MySQL/Redis foi validado localmente, conforme a matriz acima |
+
+- Evidências temporárias: `/private/tmp/factorycontrol-phase2-pr-result.json`, `factorycontrol-phase2-ci-result.json`, `factorycontrol-phase2-{push-ci,ci}-jobs.json` e `factorycontrol-phase2-push-{api83,api85,web,e2e}.log`. Conector GitHub indisponível nesta sessão; publicação pelo transporte Git/API já autenticado. Credencial somente em memória, sem impressão/versionamento.
+- Conferência final: **63 arquivos** no [manifesto da Fase 2](22-arquivos-fase-2.md), sendo 42 novos e 21 alterados; **244 arquivos versionados idênticos à pasta local** antes do fechamento documental. Pint final, `git diff --check` e `python3 scripts/validar-pacote.py` passaram (12 documentos essenciais). OpenAPI JSON válido, 91 operações/69 caminhos. Compose original SHA-256 `51696b75bdf9bbe66af4e54e62acf8b4df50936fcbe5e8d867bd35bcf53dd50f` preservado. Captura focada mobile inspecionada: grandezas, validade e bloqueio legíveis, sem overflow.
+- Main remota conferida em `c8dc2008e9ebc4e8de48bd66e77aefff999cc4e9`, ainda na Fase 1. Fechamento documental publicado na própria branch; a CI automática desse fechamento será acompanhada antes da resposta final, sem nova alteração funcional.
+- Pendência atual: revisão do PR #2 antes de integração. Limites Windows/Safari/iOS, equipamentos físicos e parâmetros técnicos/fiscais permanecem. Próxima fase funcional recomendada: **Fase 3 — fabricação/OP**, somente após autorização específica; não iniciada nesta entrega.

@@ -1,6 +1,6 @@
 # FactoryControl PRO — Projeto mestre para desenvolvimento com Codex
 
-**Status:** Fase 2 implementada e homologada localmente: fornecedores, pedidos/recebimentos, políticas físicas, lotes/locais, FEFO, reservas, movimentos/estornos, contagens e pesagens manuais. Entrega na branch `feat/phase-2-inventory`, em preparação para revisão e CI. Evidências e limites em [STATUS](docs/STATUS.md). Fase 1 integrada à main pelo [PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1). **Produção, vendas, financeiro, RCN/GTIN e BI ainda não implementados.**
+**Status:** Fase 2 implementada e homologada localmente e na CI: fornecedores, pedidos/recebimentos, políticas físicas, lotes/locais, FEFO, reservas, movimentos/estornos, contagens e pesagens manuais. Entrega na branch `feat/phase-2-inventory`, [PR #2 em rascunho para revisão](https://github.com/contatonomaci-pixel/fabric/pull/2), com quatro jobs aprovados. Evidências e limites em [STATUS](docs/STATUS.md). Fase 1 integrada à main pelo [PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1). **Produção, vendas, financeiro, RCN/GTIN e BI ainda não implementados.**
 **Revisão:** 2026-11-10. **Idioma do produto:** pt-BR; moeda BRL; datas ISO no armazenamento e pt-BR na UI.
 
 ## Executar a fundação
