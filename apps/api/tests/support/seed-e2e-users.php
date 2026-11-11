@@ -23,6 +23,9 @@ if (! is_string($password) || strlen($password) < 12) {
     throw new RuntimeException('Senha E2E efêmera ausente.');
 }
 foreach (['desktop', 'mobile'] as $project) {
+    $inventory = User::firstOrCreate(['email' => 'inventory-'.$project.'@example.test'], ['name' => 'Usuário estoque '.$project.' FICTÍCIO', 'password' => $password]);
+    $inventory->forceFill(['is_demo' => true])->save();
+    $inventory->companies()->syncWithoutDetaching([$company->id => ['role_id' => DB::table('roles')->where('code', 'owner')->value('id')]]);
     $user = User::firstOrCreate(['email' => 'catalog-'.$project.'@example.test'], ['name' => 'Usuário catálogo '.$project.' FICTÍCIO', 'password' => $password]);
     $user->forceFill(['is_demo' => true])->save();
     $user->companies()->syncWithoutDetaching([$company->id => ['role_id' => DB::table('roles')->where('code', 'owner')->value('id')]]);

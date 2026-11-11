@@ -7,3 +7,5 @@ A configuração, criação da conta fictícia, worker, testes e execução no W
 Estrutura, catálogo, preços auditados e Code128 da Fase 1: [uso e decisões](../../docs/19-catalogo-fase-1.md). GD e BCMath são necessários. Códigos/arquivos de teste são internos, sem GTIN ou homologação de PDV.
 
 `composer test` usa SQLite isolado por padrão; a execução MySQL requer `TEST_DB_CONNECTION=mysql` e banco separado terminado em `_test`. A configuração nunca deve apontar testes ao banco de desenvolvimento/produção.
+
+Fase 2: [compras, recebimento e estoque](../../docs/21-compras-estoque-fase-2.md), com políticas físicas explícitas, lotes/locais, FEFO, ledger append-only, estorno e idempotência. Depois de `migrate`, execute `db:seed` para atualizar as permissões. Nenhum lançamento financeiro é gerado.

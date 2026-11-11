@@ -72,6 +72,7 @@ async function save() {
       ? `${props.endpoint}/${props.item.public_id}`
       : props.endpoint;
     const editing = !!props.item;
+    if (props.item?.active && payload.active === false && !window.confirm(`Desativar ${props.item.name}? Confira o motivo; o histórico será preservado.`)) return;
     await csrf();
     if (!alive) return;
     if (editing) await api.patch(endpoint, payload);
@@ -93,17 +94,16 @@ async function save() {
     <h3 ref="heading" tabindex="-1">
       {{ item ? "Editar" : "Novo cadastro" }} · {{ title }}
     </h3>
-    <p v-if="item" class="field-help">
+    <p v-if="item && fields.some(field => field.key === 'sku')" class="field-help">
       Identificadores e apresentações reservados são preservados. Para outra
       apresentação, crie um novo SKU.
     </p>
     <p v-if="item?.identity_locked === false" class="field-help">
-      Esta variante ainda não possui SKU. Suas características podem ser
+      Este cadastro ainda não foi utilizado. Suas características podem ser
       corrigidas.
     </p>
     <p v-else-if="item?.identity_locked === true" class="field-help">
-      Esta variante já possui SKU. Para mudar suas características, crie outra
-      variante.
+      Este cadastro já foi utilizado. Para mudar suas características, crie outro cadastro.
     </p>
     <div class="catalog-form-grid">
       <div

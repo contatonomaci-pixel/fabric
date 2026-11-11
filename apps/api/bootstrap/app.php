@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->prepend(RequestContext::class);
         $middleware->statefulApi();
+        $middleware->redirectGuestsTo(fn () => rtrim(config('app.frontend_url'), '/').'/entrar');
         $middleware->alias(['active' => EnsureActiveUser::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

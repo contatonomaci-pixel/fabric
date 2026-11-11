@@ -96,7 +96,7 @@ async function submit() {
           Um espaço para conectar sua equipe aos próximos passos da fábrica.
         </p>
       </div>
-      <p>Fase 0 · Fundação</p>
+      <p>Fase 2 · Compras e estoque</p>
     </aside>
     <main class="access-main">
       <form class="access-form" :aria-busy="busy" @submit.prevent="submit">

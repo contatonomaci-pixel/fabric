@@ -30,6 +30,8 @@ export const router = createRouter({
         },
         { path: "estrutura", component: () => import("./views/StructureView.vue"), meta: { title: "Fábricas e depósitos" } },
         { path: "catalogo", component: () => import("./views/CatalogView.vue"), meta: { title: "Catálogo e identificadores" } },
+        { path: "compras", component: () => import("./views/OperationsView.vue"), props: { area: "purchasing" }, meta: { title: "Compras e recebimento" } },
+        { path: "estoque", component: () => import("./views/OperationsView.vue"), props: { area: "inventory" }, meta: { title: "Estoque e lotes" } },
       ],
     },
     {

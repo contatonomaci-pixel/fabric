@@ -19,6 +19,7 @@ Route::prefix('api/v1')->group(function () {
             Route::post('companies', [CompanyController::class, 'store']);
             Route::patch('companies/{company}', [CompanyController::class, 'update']);
             require __DIR__.'/catalog.php';
+            require __DIR__.'/inventory.php';
         });
     });
 });

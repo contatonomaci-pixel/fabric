@@ -21,6 +21,7 @@ const props = withDefaults(
     canAudit?: boolean;
     companyMode?: boolean;
     timezone?: string;
+    hideToggle?: boolean;
   }>(),
   { canManage: false, canAudit: false, companyMode: false, timezone: "UTC" },
 );
@@ -259,7 +260,7 @@ onBeforeUnmount(() => {
           <button v-if="mayEdit(row)" :disabled="!!changing" @click="edit(row)">
             Editar
           </button><button
-            v-if="mayEdit(row)"
+            v-if="mayEdit(row) && !hideToggle"
             :disabled="!!changing"
             @click="toggle(row)"
           >

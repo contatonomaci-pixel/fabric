@@ -1,6 +1,23 @@
 # Executar localmente no Windows / VS Code e Unix
 
-A aplicação contém autenticação, recuperação de senha, estrutura de empresas/fábricas/depósitos e catálogo da Fase 1. Uso, atualização e regras dos cadastros em [Catálogo da Fase 1](19-catalogo-fase-1.md). Estoque, produção, vendas e financeiro não estão implementados. Todo dado de demonstração é fictício e opcional.
+A aplicação contém autenticação, recuperação de senha, estrutura/catálogo da Fase 1 e compras/estoque da Fase 2. Uso e atualização: [Catálogo](19-catalogo-fase-1.md) e [Compras/estoque](21-compras-estoque-fase-2.md). Produção, vendas e financeiro não estão implementados. Todo dado de demonstração é fictício e opcional.
+
+## Ambiente ativado nesta máquina — 2026-11-10
+
+Disponível em **http://localhost:5173/entrar**, no mesmo computador. Conta `demo@example.test`, proprietária de **Fábrica Demonstração — FICTÍCIA**. A senha exclusiva foi entregue ao usuário no chat; não consta neste guia nem nos seeders. Catálogo, fornecedor e local fictícios foram criados; não foram inventados saldos, custos, política de validade ou aprovação técnica.
+
+API, Vite e worker foram iniciados em segundo plano. O Vite acompanha alterações da interface; a API lê o código local. MySQL 8.4/Redis/Mailpit usam o Compose original e volumes persistentes, nas portas 3307/6380/8025 (SMTP 1025). O MySQL preexistente da porta 3306 foi preservado. Configurações próprias em `infra/.env` e `apps/api/.env`, ignoradas pelo Git. Não copie essas credenciais para ambientes remotos.
+
+Após reiniciar o computador, suba os serviços novamente. Nesta instalação macOS, a partir da raiz:
+
+```bash
+PATH="/opt/homebrew/opt/docker/bin:/opt/homebrew/opt/colima/bin:$PATH" /opt/homebrew/opt/colima/bin/colima start --profile factorycontrol-phase0 --activate=false
+DOCKER_HOST=unix:///Users/mauriciosilva/.colima/factorycontrol-phase0/docker.sock /opt/homebrew/opt/docker-compose/bin/docker-compose -f infra/compose.yaml --env-file infra/.env up -d --wait
+```
+
+Depois, em terminais separados, use `/opt/homebrew/opt/php@8.3/bin/php artisan serve --host=127.0.0.1 --port=8000` e `/opt/homebrew/opt/php@8.3/bin/php artisan queue:work redis --tries=3 --timeout=60` em `apps/api`; `npm run dev` em `apps/web`. Não inicie cópias adicionais enquanto os processos atuais estiverem ativos. Os comandos gerais abaixo atendem outras instalações.
+
+Para recuperar o acesso, use **Esqueci minha senha** e consulte o Mailpit em **http://localhost:8025**. O DemoSeeder preserva a senha de uma conta já existente. Os dados deste ambiente são de navegação e não devem ser usados como banco dos testes; a suíte padrão continua isolada em SQLite. Não execute `migrate:fresh` nem remova os volumes para reiniciar a aplicação.
 
 ## Pré-requisitos
 
@@ -8,7 +25,7 @@ A aplicação contém autenticação, recuperação de senha, estrutura de empre
 - Node.js 22.13+ com npm (recomendado Node 22 LTS para reproduzir esta entrega).
 - Docker Desktop com plugin Compose (ou Docker/Colima no macOS) para os serviços fornecidos. Sem Docker, disponibilize **MySQL 8.4** e Redis localmente e ajuste somente seus `.env`.
 - VS Code com Vue Official, PHP Intelephense e ESLint; sugestões em `.vscode/extensions.json`.
-- Git é recomendado. A Fase 1 foi integrada à `main` pelo [PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1). Use `git clone https://github.com/contatonomaci-pixel/fabric.git` para obter esta entrega. Em um clone existente sem alterações locais pendentes, use `git switch main` e `git pull --ff-only`. A pasta original desta sessão foi recebida sem `.git`; a publicação foi feita por checkout separado, sem substituir seus arquivos locais.
+- Git é recomendado. A Fase 1 está na `main` pelo [PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1). A Fase 2 está na branch `feat/phase-2-inventory`, [PR #2 em rascunho](https://github.com/contatonomaci-pixel/fabric/pull/2); para essa entrega em revisão, use `git clone --branch feat/phase-2-inventory https://github.com/contatonomaci-pixel/fabric.git`. Após sua integração, o clone normal da main também a conterá. Não sobrescreva alterações locais ao mudar de branch. A pasta original desta sessão foi recebida sem `.git`; a publicação usa checkout separado, sem substituir seus arquivos locais.
 
 Abra a pasta raiz no VS Code. Use terminais separados para API, SPA e worker. Os comandos PHP/npm são iguais em PowerShell e Unix; os comandos de cópia e variáveis diferem, conforme abaixo.
 
@@ -102,7 +119,7 @@ vendor/bin/pint --test
 
 No Windows, se o shell não resolver o proxy do Pint, use `php vendor/laravel/pint/builds/pint --test`.
 
-A suíte padrão utiliza SQLite em memória e não acessa o banco de desenvolvimento. Os três testes de infraestrutura real e os dois de concorrência MySQL são marcados **skipped** nessa execução; não confundir com homologação MySQL.
+A suíte padrão utiliza SQLite em memória e não acessa o banco de desenvolvimento. Os três testes de infraestrutura real e os cinco de concorrência MySQL (catálogo e estoque) são marcados **skipped** nessa execução; não confundir com homologação MySQL.
 
 Em `apps/web`:
 
@@ -167,7 +184,7 @@ O último argumento é específico das bibliotecas desta instalação Homebrew e
 
 O roteiro cria MySQL em 33307, Redis em 26380, Mailpit SMTP em 11025/HTTP em 18025 e API de smoke em 18000, sempre no loopback, além do E2E 8000/5173. Bancos e senhas são descartáveis. Ele executa migrations up/down/up, API nos dois runtimes, worker real, envio/captura do reset pelo Mailpit, revogação da sessão, token de uso único, rejeição da senha anterior, login com nova senha, readiness 503 com Redis desligado e os comandos web/E2E. Ao terminar, remove o ambiente e grava a evidência sem credenciais em `/private/tmp/factorycontrol-homologation.json`.
 
-O E2E usa MySQL somente quando recebe `FACTORYCONTROL_E2E_PROFILE` criado pelo roteiro; por padrão continua SQLite. Não apontar perfis ao banco de desenvolvimento. A Fase 1 ampliou a suíte: SQLite deixa skipped os três testes de infraestrutura e os dois de concorrência; na matriz MySQL todos os testes devem passar. Contagens atuais no STATUS.
+O E2E usa MySQL somente quando recebe `FACTORYCONTROL_E2E_PROFILE` criado pelo roteiro; por padrão continua SQLite. Não apontar perfis ao banco de desenvolvimento. Até a Fase 2, SQLite deixa skipped os três testes de infraestrutura e os cinco de concorrência; na matriz MySQL todos os testes devem passar. Contagens atuais no STATUS.
 
 Essa execução nativa é distinta da homologação adicional do Compose com Redis 7 descrita abaixo. Nenhuma delas substitui a execução remota do GitHub Actions. Veja os resultados mais recentes e limites no STATUS. Para validar o contrato sem alterar dependências da aplicação:
 
@@ -200,6 +217,6 @@ CI remota: após autorização explícita, o pacote da Fase 0 foi publicado em `
 
 ## Limites desta entrega
 
-Disponíveis os cadastros da Fase 1, conforme o guia específico. Sem produção, financeiro, GTIN/RCN, estoque ou BI. A navegação não apresenta módulos futuros como funcionais. Marca, regras técnicas e homologação física continuam pendentes; a convenção de IDs da fundação foi mantida. Nenhum deploy foi realizado.
+Disponíveis os cadastros da Fase 1 e compras/estoque da Fase 2, conforme os guias específicos e a branch em revisão indicada acima. Sem produção, vendas, financeiro, GTIN/RCN ou BI. A navegação não apresenta módulos futuros como funcionais. Marca, regras técnicas e homologação física continuam pendentes; a convenção de IDs da fundação foi mantida. Nenhum deploy foi realizado.
 
 Em eventual ambiente HTTPS futuro, `SESSION_SECURE_COOKIE=true`, domínios first-party e `FRONTEND_URL` devem corresponder à topologia validada. A configuração HTTP local não é uma configuração de produção; produção permanece fora desta fase.
