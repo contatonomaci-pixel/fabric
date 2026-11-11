@@ -2,6 +2,23 @@
 
 A aplicação contém autenticação, recuperação de senha, estrutura/catálogo da Fase 1 e compras/estoque da Fase 2. Uso e atualização: [Catálogo](19-catalogo-fase-1.md) e [Compras/estoque](21-compras-estoque-fase-2.md). Produção, vendas e financeiro não estão implementados. Todo dado de demonstração é fictício e opcional.
 
+## Ambiente ativado nesta máquina — 2026-11-10
+
+Disponível em **http://localhost:5173/entrar**, no mesmo computador. Conta `demo@example.test`, proprietária de **Fábrica Demonstração — FICTÍCIA**. A senha exclusiva foi entregue ao usuário no chat; não consta neste guia nem nos seeders. Catálogo, fornecedor e local fictícios foram criados; não foram inventados saldos, custos, política de validade ou aprovação técnica.
+
+API, Vite e worker foram iniciados em segundo plano. O Vite acompanha alterações da interface; a API lê o código local. MySQL 8.4/Redis/Mailpit usam o Compose original e volumes persistentes, nas portas 3307/6380/8025 (SMTP 1025). O MySQL preexistente da porta 3306 foi preservado. Configurações próprias em `infra/.env` e `apps/api/.env`, ignoradas pelo Git. Não copie essas credenciais para ambientes remotos.
+
+Após reiniciar o computador, suba os serviços novamente. Nesta instalação macOS, a partir da raiz:
+
+```bash
+PATH="/opt/homebrew/opt/docker/bin:/opt/homebrew/opt/colima/bin:$PATH" /opt/homebrew/opt/colima/bin/colima start --profile factorycontrol-phase0 --activate=false
+DOCKER_HOST=unix:///Users/mauriciosilva/.colima/factorycontrol-phase0/docker.sock /opt/homebrew/opt/docker-compose/bin/docker-compose -f infra/compose.yaml --env-file infra/.env up -d --wait
+```
+
+Depois, em terminais separados, use `/opt/homebrew/opt/php@8.3/bin/php artisan serve --host=127.0.0.1 --port=8000` e `/opt/homebrew/opt/php@8.3/bin/php artisan queue:work redis --tries=3 --timeout=60` em `apps/api`; `npm run dev` em `apps/web`. Não inicie cópias adicionais enquanto os processos atuais estiverem ativos. Os comandos gerais abaixo atendem outras instalações.
+
+Para recuperar o acesso, use **Esqueci minha senha** e consulte o Mailpit em **http://localhost:8025**. O DemoSeeder preserva a senha de uma conta já existente. Os dados deste ambiente são de navegação e não devem ser usados como banco dos testes; a suíte padrão continua isolada em SQLite. Não execute `migrate:fresh` nem remova os volumes para reiniciar a aplicação.
+
 ## Pré-requisitos
 
 - PHP 8.3–8.5 e Composer 2. Extensões: ctype, curl, dom, fileinfo, filter, hash, intl, mbstring, openssl, pcre, PDO, pdo_mysql, session, tokenizer, xml, bcmath e **gd** (PNG/PDF). Para testes rápidos/E2E: pdo_sqlite/sqlite3.

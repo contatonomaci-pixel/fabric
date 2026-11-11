@@ -31,11 +31,11 @@ const quality = [
   { value: "blocked", label: "Bloqueado" },
   { value: "rejected", label: "Rejeitado" },
 ];
-const amounts = [
-  decimal("units", "Quantidade real (UN)"),
+const massAmounts = [
   decimal("gross_g", "Peso bruto real (g)"),
   decimal("tare_g", "Tara real (g)"),
 ];
+const amounts = [decimal("units", "Quantidade real (UN)"), ...massAmounts];
 export const directoryFields: Record<string, Field[]> = {
   suppliers: [
     { key: "name", label: "Nome do fornecedor", required: true },
@@ -165,7 +165,7 @@ export const commandFields: Record<string, OperationField[]> = {
   ],
   weigh: [
     lookup("balance_id", "Posição pesada", "inventory/positions"),
-    ...amounts,
+    ...massAmounts,
   ],
   quality: [
     lookup("lot_id", "Lote", "inventory/lots"),

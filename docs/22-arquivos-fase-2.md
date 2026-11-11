@@ -2,7 +2,9 @@
 
 Base: `c8dc2008e9ebc4e8de48bd66e77aefff999cc4e9` da main, após a integração da Fase 1. Comparação pelo checkout Git isolado; pasta da IDE preservada sem `.git`.
 
-**63 arquivos: 42 criados e 21 alterados.** Sem exclusões, dependências novas, arquivos locais de ambiente, relatórios/builds ou mudanças do Compose.
+**69 arquivos: 42 criados e 27 alterados.** Sem exclusões, dependências novas, arquivos locais de ambiente, relatórios/builds ou mudanças do Compose.
+
+Inclui compras/estoque, ajustes de ativação local e revisão técnica: política protegida após pedido emitido/lote, pesagem isolada somente em massa, regressões, entrada/painel atualizados e tratamento JSON de convidados. Estado da publicação e evidências no [STATUS](STATUS.md).
 
 ## Criados
 
@@ -56,9 +58,12 @@ Base: `c8dc2008e9ebc4e8de48bd66e77aefff999cc4e9` da main, após a integração d
 - [apps/api/app/Domain/Catalog/CatalogService.php](../apps/api/app/Domain/Catalog/CatalogService.php)
 - [apps/api/app/Domain/Catalog/ProductVariant.php](../apps/api/app/Domain/Catalog/ProductVariant.php)
 - [apps/api/app/Providers/AppServiceProvider.php](../apps/api/app/Providers/AppServiceProvider.php)
+- [apps/api/bootstrap/app.php](../apps/api/bootstrap/app.php)
 - [apps/api/database/seeders/DemoSeeder.php](../apps/api/database/seeders/DemoSeeder.php)
 - [apps/api/database/seeders/RoleSeeder.php](../apps/api/database/seeders/RoleSeeder.php)
+- [apps/api/lang/pt_BR/validation.php](../apps/api/lang/pt_BR/validation.php)
 - [apps/api/routes/auth.php](../apps/api/routes/auth.php)
+- [apps/api/tests/Feature/FoundationTest.php](../apps/api/tests/Feature/FoundationTest.php)
 - [apps/api/tests/support/seed-e2e-users.php](../apps/api/tests/support/seed-e2e-users.php)
 - [apps/web/README.md](../apps/web/README.md)
 - [apps/web/src/catalog.css](../apps/web/src/catalog.css)
@@ -67,6 +72,9 @@ Base: `c8dc2008e9ebc4e8de48bd66e77aefff999cc4e9` da main, após a integração d
 - [apps/web/src/components/CatalogPanel.vue](../apps/web/src/components/CatalogPanel.vue)
 - [apps/web/src/components/LookupSelect.vue](../apps/web/src/components/LookupSelect.vue)
 - [apps/web/src/router.ts](../apps/web/src/router.ts)
+- [apps/web/src/views/AccessView.vue](../apps/web/src/views/AccessView.vue)
+- [apps/web/src/views/DashboardView.vue](../apps/web/src/views/DashboardView.vue)
+- [apps/web/src/views/StructureView.vue](../apps/web/src/views/StructureView.vue)
 - [docs/17-executar-localmente.md](../docs/17-executar-localmente.md)
 - [docs/19-catalogo-fase-1.md](../docs/19-catalogo-fase-1.md)
 - [docs/STATUS.md](../docs/STATUS.md)

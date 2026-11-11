@@ -39,8 +39,8 @@ class InventoryDirectory
                 if ($resource === 'locations' && $record->exists && $record->isDirty('code')) {
                     Decimal::fail('code', 'Código do local é preservado; cadastre outro local para outro identificador.');
                 }
-                if ($resource === 'policies' && $record->exists && $record->isDirty(['mode', 'requires_expiry']) && InventoryLot::where('company_id', $company->id)->where('policy_id', $record->id)->exists()) {
-                    Decimal::fail('mode', 'A política já possui lotes; dimensão e regra de validade não podem ser reescritas.');
+                if ($resource === 'policies' && $record->exists && $record->isDirty(['mode', 'requires_expiry']) && $record->identityLocked()) {
+                    Decimal::fail('mode', 'A política já possui pedido emitido ou lote; dimensão e regra de validade não podem ser reescritas.');
                 }
                 $record->forceFill(['company_id' => $company->id])->save();
                 $event = new InventoryEvent;

@@ -208,6 +208,21 @@ test("compras, massa real, FEFO, transferência, contagem, estorno e bloqueio", 
     .click();
   await chooseCompany(page, companyName);
   await expect(page.locator(".catalog-record")).toContainText("1,250000000");
+  const initialPosition = (
+    await (await page.request.get(`/api/v1${scope}/inventory/positions`)).json()
+  ).data[0];
+  await page.getByRole("button", { name: "Registrar pesagem", exact: true }).click();
+  await option(page, "Posição pesada", initialPosition.public_id);
+  await expect(form.getByLabel("Quantidade real (UN)", { exact: true })).toHaveCount(0);
+  await form.getByLabel("Peso bruto real (g)", { exact: true }).fill("1260");
+  await form.getByLabel("Tara real (g)", { exact: true }).fill("10");
+  await form.getByLabel("Motivo / referência da operação", { exact: true }).fill("Pesagem isolada FICTÍCIA sem alterar saldo");
+  await saved(page);
+  const afterWeighing = (
+    await (await page.request.get(`/api/v1${scope}/inventory/positions`)).json()
+  ).data[0];
+  expect(afterWeighing.grams).toBe(initialPosition.grams);
+  expect(afterWeighing.units).toBe(initialPosition.units);
   await page
     .getByRole("button", { name: "Reservar por FEFO", exact: true })
     .click();

@@ -37,6 +37,17 @@ class FoundationTest extends TestCase
         $this->getJson('/api/v1/companies')->assertUnauthorized();
     }
 
+    public function test_anonymous_api_requests_without_json_accept_still_return_json_401(): void
+    {
+        foreach (['*/*', 'text/html'] as $accept) {
+            foreach (['/api/v1/me', '/api/v1/companies'] as $path) {
+                $response = $this->get($path, ['Accept' => $accept])->assertUnauthorized()->assertJsonPath('code', 'UNAUTHENTICATED');
+                $response->assertHeader('Content-Type', 'application/json');
+                $response->assertHeader('X-Request-ID', $response->json('request_id'));
+            }
+        }
+    }
+
     public function test_login_me_and_logout_use_session_and_hide_internal_ids(): void
     {
         $user = User::factory()->create(['password' => 'Ficticia-Segura123!']);

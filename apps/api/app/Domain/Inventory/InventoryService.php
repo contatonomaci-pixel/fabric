@@ -145,8 +145,9 @@ class InventoryService
 
     private function measurement(InventoryOperation $op, InventoryBalance $balance, array $input, InventoryPolicy $policy, bool $zero = false): array
     {
-        $units = $policy->mode !== 'mass' ? Decimal::quantity($input['units'] ?? null, 'units', ! $zero) : '0.000000';
-        if ($policy->mode === 'mass' && isset($input['units']) && bccomp(Decimal::quantity($input['units'], 'units', false), '0', 6) !== 0) {
+        $tracksUnits = $policy->mode !== 'mass' && $op->kind !== 'weigh';
+        $units = $tracksUnits ? Decimal::quantity($input['units'] ?? null, 'units', ! $zero) : '0.000000';
+        if (! $tracksUnits && isset($input['units']) && bccomp(Decimal::quantity($input['units'], 'units', false), '0', 6) !== 0) {
             Decimal::fail('units', 'A política acompanha somente massa.');
         }
         $grams = '0.000000';

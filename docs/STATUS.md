@@ -1,7 +1,8 @@
 # STATUS — controle de progresso do projeto
 
 **Data de criação:** 2026-11-06.
-**Situação:** Fase 2 implementada e homologada localmente e na CI em PHP 8.3/8.5 + MySQL 8.4/Redis: **58 testes API/535 assertions por runtime, 19 SPA e 16 E2E**. Inclui compras/recebimentos, lotes/locais, políticas físicas, FEFO, reservas, baixas/transferências/contagens, estornos e pesagens manuais. [PR #2 em rascunho](https://github.com/contatonomaci-pixel/fabric/pull/2), branch `feat/phase-2-inventory`, com [quatro jobs da CI aprovados](https://github.com/contatonomaci-pixel/fabric/actions/runs/42844158905); aguarda revisão. Main permanece na Fase 1 integrada pelo [PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1). Fases 3–10 não autorizadas. Sem deploy; homologação Windows/Safari/iOS/hardware e parâmetros técnicos/fiscais permanecem pendentes.
+**Ambiente local:** ativado em 2026-11-10 em **http://localhost:5173/entrar**; conta fictícia `demo@example.test`, senha exclusiva entregue no chat. API/SPA/worker e MySQL 8.4/Redis/Mailpit mantidos ativos, com volumes persistentes. Retomada em [Executar localmente](17-executar-localmente.md). Ajustes de ativação e revisão técnica incorporados à branch da Fase 2; publicação/CI acompanhadas no registro final abaixo.
+**Situação:** Fase 2 implementada, revisada e homologada localmente em PHP 8.3/8.5 + MySQL 8.4/Redis: **62 testes API/586 assertions por runtime, 19 SPA e 16 E2E**. Inclui compras/recebimentos, lotes/locais, políticas físicas, FEFO, reservas, baixas/transferências/contagens, estornos e pesagens manuais. [PR #2 em rascunho](https://github.com/contatonomaci-pixel/fabric/pull/2), branch `feat/phase-2-inventory`, com [quatro jobs da CI aprovados](https://github.com/contatonomaci-pixel/fabric/actions/runs/42844158905); aguarda revisão. Main permanece na Fase 1 integrada pelo [PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1). Fases 3–10 não autorizadas. Sem deploy; homologação Windows/Safari/iOS/hardware e parâmetros técnicos/fiscais permanecem pendentes.
 
 **Revisão técnica de 2026-11-08:** três achados P2 reproduzidos e corrigidos, com regressões incorporadas e aprovadas localmente e na CI. Limites de família coerentes; características de variante editáveis antes do primeiro SKU; estado próprio e disponibilidade apresentados separadamente. Evidências completas no final deste documento.
 
@@ -9,7 +10,7 @@
 |---|---|---|
 | 0 — Fundação técnica | HOMOLOGADA LOCALMENTE E NA CI | Código publicado; quatro jobs aprovados após corrigir a preservação de tests/Unit em clones |
 | 1 — Catálogo/identificadores | INTEGRADA À MAIN; CI APROVADA | Três achados P2 corrigidos; 42 API por runtime, 16 SPA e 14 E2E; PR #1 integrado, sem deploy |
-| 2 — Compras/estoque | HOMOLOGADA LOCALMENTE E NA CI; PR #2 EM RASCUNHO | 58 API/535 assertions por runtime, 19 SPA e 16 E2E; aguarda revisão, sem merge/deploy |
+| 2 — Compras/estoque | REVISÃO LOCAL CONCLUÍDA; NOVA CI EM VALIDAÇÃO | Dois P2 corrigidos; 62 API/586 assertions por runtime, 19 SPA e 16 E2E; PR #2 em rascunho, sem merge/deploy |
 | 3 — Fabricação/OP | PENDENTE | |
 | 4 — Qualidade/rastreabilidade | PENDENTE | |
 | 5 — Comercial/expedição | PENDENTE | |
@@ -550,3 +551,83 @@ Nenhum achado P0/P1 foi confirmado nesta revisão. Isso não equivale a auditori
 - Conferência final: **63 arquivos** no [manifesto da Fase 2](22-arquivos-fase-2.md), sendo 42 novos e 21 alterados; **244 arquivos versionados idênticos à pasta local** antes do fechamento documental. Pint final, `git diff --check` e `python3 scripts/validar-pacote.py` passaram (12 documentos essenciais). OpenAPI JSON válido, 91 operações/69 caminhos. Compose original SHA-256 `51696b75bdf9bbe66af4e54e62acf8b4df50936fcbe5e8d867bd35bcf53dd50f` preservado. Captura focada mobile inspecionada: grandezas, validade e bloqueio legíveis, sem overflow.
 - Main remota conferida em `c8dc2008e9ebc4e8de48bd66e77aefff999cc4e9`, ainda na Fase 1. Fechamento documental publicado na própria branch; a CI automática desse fechamento será acompanhada antes da resposta final, sem nova alteração funcional.
 - Pendência atual: revisão do PR #2 antes de integração. Limites Windows/Safari/iOS, equipamentos físicos e parâmetros técnicos/fiscais permanecem. Próxima fase funcional recomendada: **Fase 3 — fabricação/OP**, somente após autorização específica; não iniciada nesta entrega.
+
+
+### 2026-11-10 — Ambiente local persistente para acompanhamento
+
+**Objetivo e operação**
+- Usuário solicitou ativar o sistema e entregar login/senha para acompanhar a implementação. Escopo desta continuação: disponibilização local das fases 0–2, verificação de acesso e correções encontradas na ativação. Não iniciado módulo da Fase 3, não integrado PR nem realizado deploy.
+- Conferidos `AGENTS.md`, documentos obrigatórios, tarefa 02 e guia de execução. Pasta da IDE continua sem `.git`; comparação com o checkout isolado da branch `feat/phase-2-inventory`, HEAD `0bc9b1301f224409069d4c047fc7b0084155b03a`, estava limpa antes desta sessão. A CI final anterior também foi confirmada no [run 42846680057](https://github.com/contatonomaci-pixel/fabric/actions/runs/42846680057).
+- Colima `factorycontrol-phase0` iniciado com `--activate=false`; Compose original `factorycontrol-pro-dev` iniciou MySQL/Redis/Mailpit em loopback. Nenhum volume anterior desse projeto existia. Criados volumes persistentes `factorycontrol-pro-dev_mysql_data` e `factorycontrol-pro-dev_redis_data`; permanecem ligados, pois este é o ambiente solicitado para navegação, diferente dos bancos descartáveis da matriz.
+- Preparados `infra/.env` e `apps/api/.env` com acesso exclusivo local, APP_KEY gerada e permissões 0600. `.env` anterior preservado em backup privado fora do projeto. Aplicadas as seis migrations no banco novo `factorycontrol_pro`, porta 3307, seguido de `db:seed` e `DemoSeeder` com senha fornecida somente ao processo. `DEMO_PASSWORD` permanece vazio no arquivo de ambiente; senha da conta é hash no banco e não foi incluída na documentação/código.
+- Login: `demo@example.test`, proprietário da empresa **Fábrica Demonstração — FICTÍCIA**. Senha exclusiva entregue no chat a pedido do usuário. Demo contém fábrica/depósito, catálogo, fornecedor/local fictícios; não cria estoque, política física, custo nem validade. API em `127.0.0.1:8000`, SPA em `localhost:5173`, Mailpit em `localhost:8025`; worker Redis mantido ativo. MySQL nativo da porta 3306 não recebeu conexão/migration.
+- Processos iniciados em segundo plano, com logs e PIDs em `/private/tmp/factorycontrol-local-runtime/processes.json`; não requerem terminal do usuário aberto. Continuam dependentes do computador/VM ligados e não constituem autostart após reboot. Guia 17 documenta como retomar sem remover dados.
+
+**Correções verificadas**
+- Entrada, visão geral e estrutura ainda continham textos de fases anteriores. Corrigidos para compras/estoque disponíveis e adicionados atalhos no painel; sem métricas fictícias ou módulo futuro apresentado como funcional.
+- Diagnóstico de `GET /api/v1/me` sem Accept JSON retornou 500, pois o middleware tentava resolver rota Laravel `login` inexistente. Reproduzido em regressão antes da correção (**1 falhou**, 500 em vez de 401). Configurado o destino de convidados para a entrada da SPA; o renderer existente mantém o contrato JSON 401 dos caminhos `/api/*`, mesmo com Accept HTML/genérico. Novo teste cobre `/me` e `/companies` nos dois formatos e cabeçalhos JSON/correlação; passou na suíte final. Não alterada autenticação/permissão nem criado redirecionamento externo fornecido pelo cliente.
+
+**Testes desta ativação**
+
+| Verificação | Resultado |
+|---|---|
+| Readiness via Vite, liveness da API e Mailpit | HTTP 200; banco/Redis `true`; migrations todas `Ran`; nenhum job falho |
+| `php artisan test` com PHP 8.3.33 | **51 passaram / 431 assertions; 8 skipped** esperados do perfil SQLite; não representa nova matriz MySQL/concorrência |
+| Pint `--test` | Passou |
+| Web lint, typecheck e build | Passaram após ajustes de texto/atalhos |
+| Vitest | **19 passaram / 7 arquivos** |
+| Smoke Chromium contra banco persistente | **2 fluxos passaram**, desktop 1487×1058 e mobile 390×844, sem movimentos físicos criados |
+
+**QA da navegação**
+- Fluxo: entrada → autenticação real com CSRF/cookie → painel → catálogo fictício → fornecedor em compras → posições vazias e local de recebimento → reload autenticado → sair. Browser integrado sem ferramenta `node_repl js` disponível após descoberta; mantido Playwright do projeto, fallback já autorizado para a validação local.
+
+| Checagem visual/funcional | Resultado |
+|---|---|
+| URL/título e conteúdo | `localhost:5173`, FactoryControl PRO; telas reais renderizadas |
+| Framework overlay / console | Ausente; zero erros relevantes nos dois fluxos |
+| Sessão | Login HTTP 200, cookie de sessão HttpOnly, reload autenticado e logout verificados |
+| Navegação/contexto | Catálogo, fornecedor/local e estado vazio vinculados à empresa de demonstração |
+| Responsividade / armazenamento | Sem overflow horizontal; localStorage vazio |
+| Evidência visual | Capturas desktop/mobile salvas fora do repositório; painel desktop e estoque mobile inspecionados |
+
+- Script, JSON e capturas temporários em `/private/tmp/factorycontrol-local-runtime/{smoke.mjs,smoke-result.json,dashboard-desktop.png,dashboard-mobile.png,stock-desktop.png,stock-mobile.png}`. Testes de navegador não reaproveitaram o runner que recria banco E2E nem alteraram os saldos de navegação.
+- Arquivos versionáveis desta continuação: `apps/api/bootstrap/app.php`, `apps/api/tests/Feature/FoundationTest.php`, `apps/web/src/views/{AccessView,DashboardView,StructureView}.vue`, `docs/17-executar-localmente.md`, `docs/22-arquivos-fase-2.md` e `docs/STATUS.md`. Configurações/credenciais/runtime são locais e ignorados. Alterações ainda não publicadas no PR; o manifesto passa a distinguir esse complemento local da entrega publicada.
+- Pendências: revisar/publicar estas correções e acompanhar a nova CI antes de integrar o PR #2. O ambiente permanece ativo para o usuário; acessível somente no mesmo computador. Windows/Safari/iOS real e equipamentos continuam sem homologação; Fase 3 depende de autorização específica.
+
+- Fechamento da ativação: health HTTP 200 com banco/Redis `true`; consultas anônimas reais com Accept `*/*` e `text/html` retornaram JSON 401 após a correção. API/Vite/worker ativos; Compose healthy nas portas previstas e MySQL nativo PID 950 preservado. Comando macOS de Compose direto do guia conferido com `ps`. Evidência: `/private/tmp/factorycontrol-local-runtime/activation-result.json`. `git diff --check` e validação de 12 documentos passaram; `.env` de API/infra confirmados ignorados. SHA-256 original do Compose preservado. Oito arquivos versionáveis alterados nesta sessão; nenhum novo segredo/artefato de runtime entrou no manifesto. Serviços intencionalmente mantidos ligados.
+
+
+### 2026-11-10 — Revisão técnica da Fase 2
+
+**Escopo e resultado da inspeção**
+- Revisão solicitada pelo usuário, seguida de pedido de status. Consultado o roteiro `prompts/REVISAO-TECNICA.md`, tarefa 02, domínio/permissões e código completo de Purchasing/Inventory e seus formulários. Base funcional: main `c8dc2008e9ebc4e8de48bd66e77aefff999cc4e9`; branch publicada até `0bc9b1301f224409069d4c047fc7b0084155b03a`, mais oito arquivos locais da ativação anterior. Esses ajustes foram preservados.
+- Analisados: escopo das consultas/vínculos, FKs compostas, índices com NULL, permissões/custos, transações/idempotência, FEFO/qualidade, conversão/precisão, reservas/baixas, estornos, auditoria e formulários. Nenhum novo achado P0/P1 confirmado no escopo; dois achados P2 reproduzidos/corrigidos abaixo. Não se trata de certificação ou revisão de módulos futuros.
+
+| Severidade | Problema reproduzido | Correção e evidência |
+|---|---|---|
+| **P2** | Dimensão/regra de validade da política podiam mudar com pedido já emitido, enquanto ainda não havia lote. Um pedido em KG podia ficar impossível de receber quando a política passava a contagem e era usada por outro pedido. | `InventoryPolicy::identityLocked()` passa a considerar item de pedido emitido ou lote, inclusive pedido cancelado. `InventoryDirectory` aplica o bloqueio sob o mesmo lock da empresa usado por emissão/recebimento; leitura expõe `identity_locked` para o formulário. Alterar apenas estado ativo continua permitido. Regressão rejeita PATCH após emissão e confirma o indicador, mesmo sem lote. |
+| **P2** | Pesagem isolada em política dupla exigia UN para registrar bruto/tara; essa quantidade de unidades não era gravada. Sem UN, retornava 422; com UN, aceitava um valor descartado. | Pesagem isolada acompanha somente massa, não pede/aceita UN e não altera saldos. `InventoryService`, `InventoryWriteRequest` e campos Vue alinhados. Regressão registra massa sem UN, confere saldo/livro inalterados e rejeita UN sem efeito parcial. |
+
+- Correção da hipótese inicial: **a API já impedia converter KG em UN**. O teste de pedido histórico incompatível confirmou 422 no campo quantidade e nenhuma entrada/lote. O achado é a alteração posterior do significado da política/pedido, não estoque criado por conversão indevida. Preservado esse bloqueio, sem migração automática de políticas ou dados de negócio.
+- Duas falhas funcionais foram reproduzidas antes da correção. A primeira versão do teste de pedido legado também esperava erro em `unit_id`; a resposta real já era 422 em `quantity`. Essa expectativa foi corrigida para verificar o comportamento existente, sem tratar a diferença de campo como nova vulnerabilidade.
+- Três regressões adicionadas ao `InventoryTest`; contrato anterior de pesagem dupla atualizado para não enviar UN. Suíte específica final: **16 passaram / 172 assertions**. Contrato OpenAPI e guia 21 atualizados; regra `prohibited` ganhou mensagem pt-BR. E2E de estoque ampliado para pesagem isolada pelo formulário, ausência de UN e saldo preservado em desktop/mobile.
+
+**Cobertura de integridade revisada**
+- Leituras e referências resolvem empresa autorizada; API serializa somente ULIDs públicos e campos permitidos. FKs compostas foram exercitadas diretamente no MySQL. Custos permanecem segregados; histórico de qualidade não expõe compras/contatos. Sem endpoint de concessão de papéis.
+- Operações da mesma empresa se serializam por lock transacional; reservas/baixas mantêm saldo e disponível não negativos. Chave/hash por empresa evita efeito duplicado, inclusive com dois atores. Unicidade de estorno tem NULL intencional apenas nos originais, sem impedir múltiplas operações originais.
+- Quantidades/custos usam BCMath/DECIMAL; massa real vem de bruto menos tara, sem inferência pelo nominal. FEFO exclui vencidos/bloqueados/quarentena e revalida antes de consumo. Estorno acrescenta compensação; originais preservados, sem reabrir reserva consumida. Contagem administrativa não libera qualidade.
+
+**Validação em andamento e preservação do ambiente**
+- Lint/typecheck/build e Vitest passaram; **19 testes SPA / 7 arquivos**. Pint passou. Uma chamada inicial de `artisan test` a partir da raiz não localizou o PHPUnit; repetida corretamente em `apps/api`, sem alteração de aplicação por esse erro de execução.
+- Primeira matriz real: **62 testes / 586 assertions em PHP 8.3.33 e 8.5.5**, sem skipped; MySQL 8.4.13/Redis 7.4.12, migrations up/down/up, concorrência, SMTP/reset/worker/readiness aprovados. E2E: **15/16 passaram**; mobile do catálogo perdeu o formulário após abrir depósito. DOM final mostrou retorno à seção de fábricas. Nenhum achado de estoque decorreu dessa falha.
+- O teste mobile passou isolado em SQLite. Cópia temporária de testes compartilhava `node_modules` com o Vite ativo; isolado também o cache Vite e habilitado trace em caso de falha. Causa exata da perda de estado inicial não conclusiva; não foi alterado código de catálogo nem relaxados timeouts/retries. Matriz completa repetida com cache/portas separados; resultado final será registrado após conclusão.
+- Runner/SPA de teste ficam em `/private/tmp/factorycontrol-phase2-review`; somente adaptados na cópia temporária os endereços/portas 15173/18001 e cache. Código funcional da API é o da pasta principal, com ambiente/processos de teste apontando exclusivamente aos bancos `_test` do projeto Compose aleatório na porta 33307/Redis 26380. Compose original inalterado. Resultados: `matrix-first.json`, `catalog-mobile-recheck.json`, `rerun.log` e `matrix-final.json` nessa pasta.
+- Sistema do usuário mantido em `localhost:5173`/API 8000, banco 3307 e worker originais. Nenhum teste usa o banco persistente de navegação, reseta a senha entregue ou remove seus volumes. Nenhum merge, deploy ou início da Fase 3.
+
+
+**Fechamento local da revisão**
+- Matriz final `/private/tmp/factorycontrol-phase2-review/matrix-final.json`: **success=true**, **35 verificações com exit 0**, `temporary_services_stopped=true`. PHP 8.3.33 e 8.5.5: **62 passaram / 586 assertions em cada runtime**, sem skipped. SPA: **19 passaram / 7 arquivos**. E2E MySQL/Redis: **16 passaram**, 1,2 min, sem retries ou aumento de timeout. A falha mobile inicial não se repetiu após o isolamento do cache; causa original da perda de estado não foi demonstrada conclusivamente e permanece registrada acima.
+- Incluídos migrations up/down/up em cada runtime, integridade/FKs, concorrência com dois atores, idempotência, leitura independente de código, SMTP/reset/revogação, worker e readiness 503 quando somente o Redis de teste é desligado. Lint/typecheck/build, Pint e Composer validate aprovados. OpenAPI JSON e seus campos de política/pesagem conferidos; mantidas 91 operações/69 caminhos. Validação documental (12 arquivos essenciais) e diff sem whitespace inválido aprovados.
+- QA no endereço temporário `localhost:15173`, desktop 1487×1058 e mobile Chromium 390×844. Fluxos reais de pedido/recebimento/pesagem isolada/reserva/consumo/transferência/contagem/estorno/bloqueio. Capturas `qa/inventory-values-{desktop,mobile}.png` inspecionadas; saldos, validade, estado e layout legíveis. Asserção E2E confirma ausência do campo UN na pesagem, registro bem-sucedido e saldos idênticos antes/depois. Sem overlay, tela vazia ou erro JavaScript relevante no fluxo. Browser integrado continua sem ferramenta de execução disponível; usado Playwright já autorizado.
+- A revisão altera **19 arquivos** desde o último commit publicado, incluindo os oito da ativação anterior. [Manifesto global](22-arquivos-fase-2.md): **69 arquivos** contra a base da Fase 1, 42 criados/27 alterados. Sem nova dependency, migration, mudança do Compose ou do banco persistente. Senhas/ambiente/logs/capturas permanecem fora dos arquivos versionados.
+- Próximo passo nesta entrega: publicar o snapshot revisado no PR #2, manter o rascunho e conferir a nova CI. Main permanece na Fase 1. Nenhum módulo de produção/financeiro/GTIN/RCN/BI ou Fase 3 foi iniciado; homologação Windows/Safari/iOS e hardware mantém os limites anteriores.

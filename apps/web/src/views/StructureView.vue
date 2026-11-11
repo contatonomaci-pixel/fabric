@@ -13,8 +13,8 @@ const definition = computed(() =>
   <section>
     <h1>Fábricas e depósitos</h1>
     <p class="intro">
-      Estrutura física vinculada à empresa. Estoque e controles operacionais
-      entram nas próximas fases.
+      Estrutura física vinculada à empresa. Os locais de armazenagem e os
+      saldos por lote estão em Estoque e lotes.
     </p>
     <CompanyPicker @selected="company = $event" /><template v-if="company">
       <nav class="catalog-tabs" aria-label="Seções da estrutura">

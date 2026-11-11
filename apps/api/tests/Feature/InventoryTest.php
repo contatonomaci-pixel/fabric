@@ -96,6 +96,44 @@ class InventoryTest extends TestCase
         return $this->command('reserve', ['variant_id' => $this->variant->public_id, 'warehouse_id' => Warehouse::first()->public_id, ...$payload])->assertCreated()->json('data.reservations.0');
     }
 
+    public function test_issued_order_locks_policy_before_the_first_lot(): void
+    {
+        $this->order();
+        $this->assertDatabaseCount('inventory_lots', 0);
+        $path = $this->base.'/inventory/policies/'.$this->policy->public_id;
+        $this->patchJson($path, ['mode' => 'count', 'reason' => 'Correção FICTÍCIA'])->assertUnprocessable();
+        $this->patchJson($path, ['requires_expiry' => false, 'reason' => 'Correção FICTÍCIA'])->assertUnprocessable();
+        $this->getJson($path)->assertOk()->assertJsonPath('data.identity_locked', true);
+        $this->patchJson($path, ['mode' => 'mass', 'requires_expiry' => true, 'active' => false, 'reason' => 'Desativação FICTÍCIA'])->assertOk();
+        $this->assertSame('mass', $this->policy->fresh()->mode);
+    }
+
+    public function test_receipt_rejects_legacy_order_with_incompatible_policy_dimension(): void
+    {
+        $item = $this->order('1');
+        // Simula pedido histórico afetado por alteração permitida antes da correção.
+        $this->policy->forceFill(['mode' => 'count'])->save();
+        $this->command('receive', ['order_item_id' => $item->public_id, 'location_id' => $this->location->public_id, 'quantity' => '1', 'units' => '1000', 'received_on' => '2026-11-08', 'expires_on' => '2026-12-01', 'supplier_lot_code' => 'LEGADO-FICTICIO'])->assertUnprocessable()->assertJsonValidationErrors('quantity');
+        $this->assertDatabaseCount('inventory_lots', 0);
+        $this->assertDatabaseCount('purchase_receipts', 0);
+        $this->assertSame('0.000000', $item->fresh()->received_quantity);
+    }
+
+    public function test_standalone_dual_weighing_records_mass_without_discarding_units(): void
+    {
+        $this->policy->forceFill(['mode' => 'dual'])->save();
+        $balance = $this->receipt($this->order(), '1', extra: ['units' => '7']);
+        $this->command('weigh', ['balance_id' => $balance->public_id, 'gross_g' => '1010', 'tare_g' => '10'])->assertCreated();
+        $this->assertSame('1000.000000', InventoryWeighing::latest('id')->first()->net_g);
+        $this->assertSame('7.000000', $balance->fresh()->units);
+        $this->assertSame('1000.000000', $balance->fresh()->grams);
+        $this->assertDatabaseCount('inventory_movements', 1);
+        $operations = InventoryOperation::count();
+        $this->command('weigh', ['balance_id' => $balance->public_id, 'units' => '1', 'gross_g' => '1010', 'tare_g' => '10'])->assertUnprocessable()->assertJsonValidationErrors('units');
+        $this->assertSame($operations, InventoryOperation::count());
+        $this->assertDatabaseCount('inventory_weighings', 2);
+    }
+
     public function test_receiving_is_exact_partial_audited_and_idempotent(): void
     {
         $item = $this->order();
@@ -220,7 +258,7 @@ class InventoryTest extends TestCase
         $this->command('reserve', ['variant_id' => $this->variant->public_id, 'warehouse_id' => Warehouse::first()->public_id, 'units' => '1', 'grams' => '300'])->assertUnprocessable()->assertJsonValidationErrors('balance_id');
         $id = $this->reservationId(['balance_id' => $balance->public_id, 'units' => '1', 'grams' => '300']);
         $this->command('cancel-reservation', ['reservation_id' => $id])->assertCreated();
-        $this->command('weigh', ['balance_id' => $balance->public_id, 'units' => '1', 'gross_g' => '310', 'tare_g' => '10'])->assertCreated();
+        $this->command('weigh', ['balance_id' => $balance->public_id, 'gross_g' => '310', 'tare_g' => '10'])->assertCreated();
         $this->assertSame('700.000000', $balance->fresh()->grams);
         $this->command('issue', ['balance_id' => $balance->public_id, 'units' => '1', 'gross_g' => '310', 'tare_g' => '10'])->assertCreated();
         $this->assertSame('400.000000', $balance->fresh()->grams);

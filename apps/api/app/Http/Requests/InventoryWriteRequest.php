@@ -53,7 +53,8 @@ class InventoryWriteRequest extends FormRequest
         $amountFields = match ($kind) {
             'receive' => ['quantity', 'units', 'gross_g', 'tare_g'],
             'reserve' => ['units', 'grams'],
-            'issue', 'transfer', 'count', 'weigh' => ['units', 'gross_g', 'tare_g'],
+            'issue', 'transfer', 'count' => ['units', 'gross_g', 'tare_g'],
+            'weigh' => ['gross_g', 'tare_g'],
             default => [],
         };
         foreach (['quantity', 'units', 'grams', 'gross_g', 'tare_g'] as $field) {

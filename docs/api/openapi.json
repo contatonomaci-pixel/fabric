@@ -11609,7 +11609,7 @@
             }
           }
         },
-        "description": "Registra bruto/tara/líquido manual auditável. Não cria nem altera saldo. Permissão: inventory.weigh. Validação/rechecagem dentro da transação. Todos os IDs de entrada pertencem à empresa da rota.",
+        "description": "Registra somente bruto/tara/líquido manual auditável, inclusive na política dupla. UN não é aceita; não cria nem altera saldo. Permissão: inventory.weigh. Validação/rechecagem dentro da transação. Todos os IDs de entrada pertencem à empresa da rota.",
         "requestBody": {
           "required": true,
           "content": {
@@ -13228,7 +13228,7 @@
           "identity_locked": {
             "type": "boolean",
             "readOnly": true,
-            "description": "A política é imutável em dimensão/validade após o primeiro lote."
+            "description": "A política é imutável em dimensão/validade após o primeiro pedido emitido ou lote, inclusive pedido cancelado."
           }
         },
         "required": [
@@ -13814,17 +13814,17 @@
           "gross_g": {
             "type": "string",
             "pattern": "^\\d{1,12}(\\.\\d{1,6})?$",
-            "description": "Quantidade física em texto decimal; modo da política determina se UN, massa ou ambas são exigidas. Nunca derivada do peso nominal."
+            "description": "Massa real em gramas; pesagem isolada não registra UN nem altera saldo."
           },
           "tare_g": {
             "type": "string",
             "pattern": "^\\d{1,12}(\\.\\d{1,6})?$",
-            "description": "Quantidade física em texto decimal; modo da política determina se UN, massa ou ambas são exigidas. Nunca derivada do peso nominal."
+            "description": "Massa real em gramas; pesagem isolada não registra UN nem altera saldo."
           },
           "net_g": {
             "type": "string",
             "pattern": "^\\d{1,12}(\\.\\d{1,6})?$",
-            "description": "Quantidade física em texto decimal; modo da política determina se UN, massa ou ambas são exigidas. Nunca derivada do peso nominal."
+            "description": "Massa real em gramas; pesagem isolada não registra UN nem altera saldo."
           },
           "operation_id": {
             "type": "string",
@@ -14811,7 +14811,7 @@
       },
       "InventoryCommandWeigh": {
         "type": "object",
-        "description": "Registra bruto/tara/líquido manual auditável. Não cria nem altera saldo.",
+        "description": "Registra somente bruto/tara/líquido manual auditável, inclusive na política dupla. UN não é aceita; não cria nem altera saldo.",
         "properties": {
           "reason": {
             "type": "string",
@@ -14827,29 +14827,23 @@
             "type": "string",
             "pattern": "^[0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{26}$"
           },
-          "units": {
-            "type": "string",
-            "pattern": "^\\d{1,12}(\\.\\d{1,6})?$",
-            "description": "Quantidade física em texto decimal; modo da política determina se UN, massa ou ambas são exigidas. Nunca derivada do peso nominal.",
-            "nullable": true
-          },
           "gross_g": {
             "type": "string",
             "pattern": "^\\d{1,12}(\\.\\d{1,6})?$",
-            "description": "Quantidade física em texto decimal; modo da política determina se UN, massa ou ambas são exigidas. Nunca derivada do peso nominal.",
-            "nullable": true
+            "description": "Massa real em gramas, texto decimal com até 6 casas."
           },
           "tare_g": {
             "type": "string",
             "pattern": "^\\d{1,12}(\\.\\d{1,6})?$",
-            "description": "Quantidade física em texto decimal; modo da política determina se UN, massa ou ambas são exigidas. Nunca derivada do peso nominal.",
-            "nullable": true
+            "description": "Massa real em gramas, texto decimal com até 6 casas."
           }
         },
         "required": [
           "reason",
           "idempotency_key",
-          "balance_id"
+          "balance_id",
+          "gross_g",
+          "tare_g"
         ]
       },
       "InventoryCommandQuality": {

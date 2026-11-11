@@ -96,7 +96,7 @@ class InventoryRead
         $data['name'] ??= $this->label($record);
         if ($resource === 'policies') {
             $data['name'] = $data['variant_id_label'].' · '.['mass' => 'Massa real (g)', 'count' => 'Contagem (UN)', 'dual' => 'UN e massa real'][$record->mode];
-            $data['identity_locked'] = InventoryLot::where('company_id', $company->id)->where('policy_id', $record->id)->exists();
+            $data['identity_locked'] = $record->identityLocked();
         }
         if ($resource === 'order-items') {
             $data['remaining_quantity'] = bcsub($record->quantity, $record->received_quantity, 6);
