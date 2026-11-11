@@ -334,6 +334,30 @@ class InventoryTest extends TestCase
         $this->getJson($this->base.'/inventory/positions?variant_id='.$this->variant->public_id.'&warehouse_id='.Warehouse::first()->public_id.'&quality_status=released')->assertOk()->assertJsonPath('meta.total', 1);
     }
 
+    public function test_count_reservation_rejects_mass_instead_of_discarding_it(): void
+    {
+        $this->policy->forceFill(['mode' => 'count'])->save();
+        $balance = $this->receipt($this->order('10', 'UN'), '2', extra: ['units' => '2', 'gross_g' => null, 'tare_g' => null]);
+        $reservation = InventoryReservation::where('public_id', $this->reservationId(['units' => '1']))->firstOrFail();
+        $allocation = InventoryAllocation::where('reservation_id', $reservation->id)->firstOrFail();
+        $operations = InventoryOperation::count();
+        $key = (string) Str::uuid();
+        foreach ([['10', '20'], ['20', '10']] as [$gross, $tare]) {
+            $this->command('consume', ['reservation_id' => $reservation->public_id, 'measurements' => [['allocation_id' => $allocation->public_id, 'gross_g' => $gross, 'tare_g' => $tare]]], $key)->assertUnprocessable()->assertJsonValidationErrors('measurements');
+        }
+        $this->assertSame($operations, InventoryOperation::count());
+        $this->assertSame('active', $reservation->fresh()->status);
+        $this->assertSame('2.000000', $balance->fresh()->units);
+        $this->assertSame('1.000000', $balance->fresh()->reserved_units);
+        $this->assertDatabaseCount('inventory_movements', 1);
+        $this->assertDatabaseCount('inventory_weighings', 0);
+        $this->command('consume', ['reservation_id' => $reservation->public_id], $key)->assertCreated();
+        $this->assertSame('consumed', $reservation->fresh()->status);
+        $this->assertSame('1.000000', $balance->fresh()->units);
+        $this->assertSame('0.000000', $balance->fresh()->reserved_units);
+        $this->assertDatabaseCount('inventory_movements', 2);
+    }
+
     public function test_inventory_schema_and_composite_fk_reject_cross_tenant_position(): void
     {
         $balance = $this->receipt($this->order());

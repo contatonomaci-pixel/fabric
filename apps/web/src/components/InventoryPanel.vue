@@ -98,7 +98,7 @@ function value(row: CatalogRow, key: string) {
   if (raw == null) return "Não informado";
   if (key.includes("cost")) return money(String(raw));
   if (key.endsWith("_on")) return String(raw).split("-").reverse().join("/");
-  if (/(units|grams|quantity|kilograms|_g)$/.test(key))
+  if (/(units|grams|quantity|kilograms|_g)(?:_delta)?$/.test(key))
     return String(raw).replace(".", ",");
   return statusNames[String(raw)] || String(raw);
 }

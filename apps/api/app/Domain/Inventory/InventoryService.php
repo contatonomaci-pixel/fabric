@@ -375,8 +375,11 @@ class InventoryService
             $balance = $this->owned(InventoryBalance::class, $allocation->balance_id);
             if ($op->kind === 'consume') {
                 $policy = $this->eligible($balance);
+                $matches = $measurements->where('allocation_id', $allocation->public_id);
+                if ($policy->mode === 'count' && $matches->isNotEmpty()) {
+                    Decimal::fail('measurements', 'Alocação de contagem não aceita pesagem. Informe somente a reserva para consumir UN.');
+                }
                 if ($policy->mode !== 'count') {
-                    $matches = $measurements->where('allocation_id', $allocation->public_id);
                     if ($matches->count() !== 1) {
                         Decimal::fail('measurements', 'Confirme a pesagem de cada alocação, uma única vez.');
                     }

@@ -8,6 +8,41 @@ vi.mock("../lib/api", () => ({
   errorMessage: () => "Falha",
 }));
 describe("Consulta de compras", () => {
+  it("mostra variações de massa e unidades com sinal e vírgula decimal", async () => {
+    vi.mocked(api.get).mockResolvedValue({
+      data: {
+        data: [
+          {
+            public_id: "movement",
+            name: "Movimento FICTÍCIO",
+            created_at: "2026-11-08T12:00:00Z",
+            mode: "dual",
+            units_delta: "-1.000000",
+            grams_delta: "-1250.500000",
+          },
+        ],
+        meta: { current_page: 1, last_page: 1, total: 1 },
+      },
+    });
+    const company: Company = {
+      public_id: "A",
+      name: "Teste",
+      trade_name: "Teste",
+      legal_name: "Teste",
+      timezone: "America/Bahia",
+      active: true,
+      is_demo: true,
+      permissions: ["inventory.view"],
+    };
+    const wrapper = mount(InventoryPanel, {
+      global: { stubs: { LookupSelect: true } },
+      props: { company, resource: "movements" },
+    });
+    await flushPromises();
+    expect(wrapper.text()).toContain("-1,000000");
+    expect(wrapper.text()).toContain("-1250,500000");
+    expect(wrapper.text()).not.toContain("-1250.500000");
+  });
   it("não renderiza custos sem concessão específica, mesmo se recebidos", async () => {
     vi.mocked(api.get).mockResolvedValue({
       data: {

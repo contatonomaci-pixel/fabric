@@ -251,6 +251,14 @@ test("compras, massa real, FEFO, transferência, contagem, estorno e bloqueio", 
     .getByLabel("Motivo / referência da operação", { exact: true })
     .fill("Consumo físico de teste FICTÍCIO");
   await saved(page, "Registrar operação", true);
+  await switchTab(page, "movements");
+  const consumptionMovement = page.locator(".catalog-record").filter({ hasText: "Consumo de reserva" });
+  await expect(consumptionMovement).toContainText("-500,000000");
+  if (process.env.QA_SCREENSHOT_DIR) {
+    mkdirSync(process.env.QA_SCREENSHOT_DIR, { recursive: true });
+    await consumptionMovement.scrollIntoViewIfNeeded();
+    await page.screenshot({ path: join(process.env.QA_SCREENSHOT_DIR, `movement-${info.project.name}.png`) });
+  }
   await switchTab(page, "positions");
   await expect(page.locator(".catalog-record")).toContainText("0,750000000");
   let positions = (

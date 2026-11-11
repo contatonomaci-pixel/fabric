@@ -14599,7 +14599,7 @@
       },
       "InventoryCommandConsume": {
         "type": "object",
-        "description": "Consome reserva ativa, revalidando disponibilidade/qualidade/validade. Confirma bruto/tara de cada alocação de massa. Medição diferente exige cancelar/refazer reserva; nenhuma baixa duplicada pela mesma solicitação.",
+        "description": "Consome reserva ativa, revalidando disponibilidade/qualidade/validade. Confirma bruto/tara de cada alocação de massa. Medição diferente exige cancelar/refazer reserva; nenhuma baixa duplicada pela mesma solicitação. Pesagens são aceitas somente para alocações de massa/duplas; alocações de contagem rejeitam measurements sem alterar saldo ou reserva.",
         "properties": {
           "reason": {
             "type": "string",
@@ -14641,7 +14641,8 @@
                   "description": "Quantidade física em texto decimal; modo da política determina se UN, massa ou ambas são exigidas. Nunca derivada do peso nominal."
                 }
               }
-            }
+            },
+            "description": "Obrigatórias para cada alocação de massa/dupla; não enviar para alocações de contagem. Dados incompatíveis são rejeitados com 422."
           }
         },
         "required": [

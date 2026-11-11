@@ -2,7 +2,7 @@
 
 **Data de criação:** 2026-11-06.
 **Ambiente local:** ativado em 2026-11-10 em **http://localhost:5173/entrar**; conta fictícia `demo@example.test`, senha exclusiva entregue no chat. API/SPA/worker e MySQL 8.4/Redis/Mailpit mantidos ativos, com volumes persistentes. Retomada em [Executar localmente](17-executar-localmente.md). Ajustes de ativação e revisão técnica incorporados à branch da Fase 2; publicação/CI acompanhadas no registro final abaixo.
-**Situação:** Fase 2 implementada, revisada e homologada localmente e na CI em PHP 8.3/8.5 + MySQL 8.4/Redis: **62 testes API/586 assertions por runtime, 19 SPA e 16 E2E**. Inclui compras/recebimentos, lotes/locais, políticas físicas, FEFO, reservas, baixas/transferências/contagens, estornos e pesagens manuais. [PR #2 em rascunho](https://github.com/contatonomaci-pixel/fabric/pull/2), branch `feat/phase-2-inventory`, com [quatro jobs da CI aprovados](https://github.com/contatonomaci-pixel/fabric/actions/runs/42943822617); correções da revisão técnica aprovadas, integração pendente. Main permanece na Fase 1 integrada pelo [PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1). Fases 3–10 não autorizadas. Sem deploy; homologação Windows/Safari/iOS/hardware e parâmetros técnicos/fiscais permanecem pendentes.
+**Situação:** Fase 2 implementada, revisada e homologada localmente em PHP 8.3/8.5 + MySQL 8.4/Redis: **63 testes API/606 assertions por runtime, 20 SPA e 16 E2E**. Inclui compras/recebimentos, lotes/locais, políticas físicas, FEFO, reservas, baixas/transferências/contagens, estornos e pesagens manuais. [PR #2 em rascunho](https://github.com/contatonomaci-pixel/fabric/pull/2), branch `feat/phase-2-inventory`, com [quatro jobs da CI aprovados](https://github.com/contatonomaci-pixel/fabric/actions/runs/42943822617); correções da revisão técnica aprovadas, integração pendente. Main permanece na Fase 1 integrada pelo [PR #1](https://github.com/contatonomaci-pixel/fabric/pull/1). Fases 3–10 não autorizadas. Sem deploy; homologação Windows/Safari/iOS/hardware e parâmetros técnicos/fiscais permanecem pendentes.
 
 **Revisão técnica de 2026-11-08:** três achados P2 reproduzidos e corrigidos, com regressões incorporadas e aprovadas localmente e na CI. Limites de família coerentes; características de variante editáveis antes do primeiro SKU; estado próprio e disponibilidade apresentados separadamente. Evidências completas no final deste documento.
 
@@ -10,7 +10,7 @@
 |---|---|---|
 | 0 — Fundação técnica | HOMOLOGADA LOCALMENTE E NA CI | Código publicado; quatro jobs aprovados após corrigir a preservação de tests/Unit em clones |
 | 1 — Catálogo/identificadores | INTEGRADA À MAIN; CI APROVADA | Três achados P2 corrigidos; 42 API por runtime, 16 SPA e 14 E2E; PR #1 integrado, sem deploy |
-| 2 — Compras/estoque | REVISÃO TÉCNICA E CI CONCLUÍDAS; PR #2 EM RASCUNHO | Dois P2 corrigidos; 62 API/586 assertions por runtime, 19 SPA e 16 E2E; integração pendente, sem merge/deploy |
+| 2 — Compras/estoque | SEGUNDA REVISÃO LOCAL CONCLUÍDA; NOVA CI EM VALIDAÇÃO | Novo P2/P3 corrigidos; 63 API/606 assertions por runtime, 20 SPA e 16 E2E; PR #2 em rascunho, sem merge/deploy |
 | 3 — Fabricação/OP | PENDENTE | |
 | 4 — Qualidade/rastreabilidade | PENDENTE | |
 | 5 — Comercial/expedição | PENDENTE | |
@@ -640,3 +640,26 @@ Nenhum achado P0/P1 foi confirmado nesta revisão. Isso não equivale a auditori
 - Conferidos **244 arquivos versionados idênticos** à pasta local e ausência das senhas/APP_KEY locais em todos eles; checkout isolado limpo. Manifesto global: 69 arquivos contra a Fase 1. Compose original SHA-256 `51696b75bdf9bbe66af4e54e62acf8b4df50936fcbe5e8d867bd35bcf53dd50f` preservado. Fechamento exclusivamente documental publicado na mesma branch, com sua CI automática acompanhada antes da resposta final.
 - Ambiente do usuário revalidado: `http://localhost:5173/api/v1/health` HTTP 200, banco e Redis saudáveis; API PID 698, Vite 699 e worker 700 ativos. Os três containers `factorycontrol-pro-dev` continuam ligados; somente os projetos/volumes descartáveis dos testes foram removidos. Login e senha entregues anteriormente não foram redefinidos. Evidência adicional: `live-health.json` na pasta temporária da revisão.
 - **Conclusão:** dois achados P2 desta revisão corrigidos e cobertos por regressões; nenhum bloqueio técnico adicional confirmado no escopo examinado. Próximo passo: revisão humana/integração do PR #2. Fase 3 recomendada somente após autorização específica. Windows/Safari/iOS real, equipamentos e parâmetros técnicos/fiscais permanecem sem homologação. Main/produção preservadas.
+
+
+### 2026-11-10 — Segunda revisão da Fase 2
+
+**Escopo e achados reproduzidos**
+- Nova revisão solicitada pelo usuário. Snapshot inicial `08ba8683b9f2b795bc3541525c4380afdfc17bc5`, sem alterações locais, main preservada. Reexaminados limites por política física, entradas incompatíveis, preservação de saldos/auditoria e apresentação de movimentos. Correções anteriores de política após pedido e pesagem isolada permanecem presentes. Sistema persistente do usuário mantido ativo.
+
+| Severidade | Reprodução antes da correção | Correção aplicada |
+|---|---|---|
+| **P2** | `consume` de reserva com política de contagem aceitava `measurements` da própria alocação, inclusive bruto menor que tara. Respondia **201**, consumia UN e descartava os pesos, sem registro de pesagem. | `InventoryService::finishReservation` rejeita pesagens de alocações de contagem com **422**. Reserva/saldo/livro/chave de idempotência não são alterados pela falha. A solicitação corrigida, sem pesos, pode usar a mesma chave e consumir normalmente. |
+| **P3** | Colunas `units_delta` e `grams_delta` escapavam da formatação pt-BR: exibiam `-1.000000`/`-1250.500000`, enquanto outras quantidades usavam vírgula. | `InventoryPanel` também formata os campos com sufixo `_delta`, preservando sinal/casas e sem converter o valor para float. |
+
+- Regressões reproduziram **uma falha de API (201 em vez de 422)** e **uma falha de componente (ponto em vez de vírgula)** antes das alterações. Depois da correção: suíte de estoque **17 testes / 192 assertions**; Vitest **20 testes / 7 arquivos**; Pint, lint, typecheck e build passaram.
+- Teste de API cobre pesos incompatíveis com tara maior ou menor que o bruto, ausência de efeitos parciais, reserva ativa/saldo retido e uso posterior da mesma chave com payload corrigido. Teste de componente verifica valores negativos em UN e gramas, com seis casas. E2E existente ampliado para abrir Movimentos após consumo, conferir `-500,000000` e capturar a linha nos dois viewports.
+- Arquivos de código: `apps/api/app/Domain/Inventory/InventoryService.php`, `apps/api/tests/Feature/InventoryTest.php`, `apps/web/src/components/InventoryPanel.vue`, `apps/web/src/components/InventoryPanel.test.ts` e `apps/web/e2e/inventory.spec.ts`. Guia 21 e OpenAPI passaram a explicitar que alocação de contagem não aceita pesagem. Sem mudança de schema, dependência, permissão, Compose ou módulo futuro.
+- Matriz completa MySQL/Redis/PHP 8.3/8.5 e E2E iniciada em bancos/portas/cache isolados, sem usar nem reiniciar o ambiente do usuário. Evidências desta rodada: `/private/tmp/factorycontrol-phase2-review/{matrix-second-review.json,second-review.log,qa-second/}`. Contagens da matriz/CI serão registradas após a conclusão; resultados anteriores não substituem esses checks.
+
+
+**Fechamento local da segunda revisão**
+- Matriz `matrix-second-review.json`: **success=true**, **35 checks com exit 0**, `temporary_services_stopped=true`. MySQL 8.4.13/Redis 7.4.12 com **63 testes / 606 assertions em cada PHP (8.3.33 e 8.5.5)**, sem skipped; **20 SPA / 7 arquivos** e **16 E2E**, 1,3 min. Inclui concorrência, migrations up/down/up, integridade, idempotência e smokes herdados de SMTP/reset/worker/readiness. Pint e Composer validate passaram.
+- QA da apresentação em `localhost:15173`, desktop 1487×1058 e mobile Chromium 390×844. Fluxo de consumo → Movimentos → Posições: variação `-500,000000` exibida e saldo físico correto preservado. Capturas `qa-second/movement-{desktop,mobile}.png` inspecionadas; sem overlay/erro JavaScript ou overflow no fluxo. Browser integrado sem ferramenta de execução disponível; mantido Playwright autorizado com portas/cache isolados.
+- OpenAPI JSON atualizado e válido; 91 operações/69 caminhos preservados. Manifesto global continua com 69 arquivos contra a Fase 1 (42 criados/27 alterados), pois esta revisão altera arquivos já presentes. Oito arquivos alterados desde `08ba868`: cinco de código/testes, guia 21, OpenAPI e STATUS. Sem segredos/artefatos de QA no diff; Compose e dados de navegação preservados.
+- Próximo passo desta revisão: publicar as correções no PR #2 em rascunho e conferir a CI do novo snapshot. Sem merge, deploy ou autorização/início de Fase 3. As limitações Windows/Safari/iOS real e equipamentos permanecem.
